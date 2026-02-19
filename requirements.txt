@@ -1,0 +1,14 @@
+# Visual Novel Toolkit - Dependencies
+
+# AI
+google-generativeai>=0.3.0
+openai>=1.0.0
+
+# HTTP requests (for SD WebUI)
+requests>=2.28.0
+
+# Utilities
+python-dateutil>=2.8.0
+
+# Optional: for advanced text processing
+# jieba>=0.42.0  # Chinese word segmentation

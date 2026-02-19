@@ -1,0 +1,67 @@
+# Changelog
+
+## [2026-02-20] - SD 表情生成功能
+
+### 新增功能
+
+#### SD img2img 表情生成
+- 新增 `shared/sd_expression_generator.py` - 使用 Stable Diffusion img2img 生成角色表情變化
+- 支援可調整的 **去噪強度 (denoising strength)**：
+  - 0.2-0.3：非常像原圖，表情變化小
+  - 0.35-0.45：適中（推薦）
+  - 0.5-0.6：變化大，可能不像原角色
+- 表情 prompt 使用權重語法 `(expression:1.3)` 強調表情特徵
+- 自動排除衝突表情（如生成 happy 時排除 crying, tears）
+
+#### UI 改進
+- 選定角色圖片後，圖片右上角顯示紅色 ✕ 取消按鈕
+- 表情預覽區新增「🗑️ 清除重生」按鈕，方便重新生成
+- 去噪強度滑桿控制（0.1 - 0.6）
+- 表情生成完成後顯示 denoising 參數
+
+### 修復
+
+- 修正 `saveSession is not defined` JavaScript 錯誤
+- 修正表情圖片路徑重複問題
+- 修正表情 prompt 導致所有表情都像在哭的問題
+- 表情 prompt 現在放在最前面優先處理
+
+### 技術細節
+
+#### SD 表情 Prompt 設計
+```python
+EXPRESSION_PROMPTS = {
+    'happy': '(smiling:1.3), (happy expression:1.2), bright eyes, cheerful',
+    'sad': '(sad expression:1.3), (melancholic:1.2), downcast eyes, frowning',
+    'angry': '(angry expression:1.3), (furrowed brows:1.2), intense glare',
+    # ...
+}
+
+EXPRESSION_NEGATIVE = {
+    'happy': 'sad, crying, tears, angry, neutral, frown, melancholic',
+    'sad': 'happy, smiling, laughing, cheerful, tears, crying',
+    # ...
+}
+```
+
+#### API 端點更新
+`POST /api/generate-expressions` 新增參數：
+- `method`: `'sd'` 或 `'ai'`（預設 `'sd'`）
+- `denoising`: 去噪強度（預設 `0.35`）
+
+### 已知限制
+
+- AI 表情生成（Imagen/Gemini）無法保持角色一致性，建議使用 SD
+- SD 需要本地運行 WebUI (`localhost:7860`)
+- 建議安裝 ControlNet 以獲得更好的一致性（目前未整合）
+
+---
+
+## [2026-02-19] - Prompt Editor 初版
+
+### 新增功能
+- Prompt Editor 網頁介面
+- 角色/場景概念圖生成與預覽
+- 多模型支援（Gemini Imagen / Stable Diffusion）
+- 風格選擇器
+- Session 自動儲存/載入

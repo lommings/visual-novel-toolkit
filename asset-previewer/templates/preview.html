@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>素材預覽 - Visual Novel Toolkit</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+        
+        h2 {
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4a4a6a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h2 .icon {
+            font-size: 1.2em;
+        }
+        
+        .section {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .item-group {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #1a1a2e;
+            border-radius: 8px;
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .item-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #00d9ff;
+        }
+        
+        .item-desc {
+            font-size: 0.9em;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .concept-item {
+            position: relative;
+            border: 3px solid transparent;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #0f0f23;
+        }
+        
+        .concept-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.3);
+        }
+        
+        .concept-item.selected {
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        
+        .concept-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .concept-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        
+        .concept-item.selected .concept-label {
+            background: rgba(0, 255, 136, 0.8);
+            color: #000;
+            font-weight: bold;
+        }
+        
+        .check-mark {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #00ff88;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #000;
+        }
+        
+        .concept-item.selected .check-mark {
+            display: flex;
+        }
+        
+        .notes-input {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            border: 1px solid #4a4a6a;
+            border-radius: 4px;
+            background: #0f0f23;
+            color: #eee;
+            font-size: 0.9em;
+        }
+        
+        .notes-input::placeholder {
+            color: #666;
+        }
+        
+        .confirm-section {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #16213e;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .selection-summary {
+            font-size: 0.9em;
+            color: #888;
+        }
+        
+        .selection-summary .count {
+            color: #00ff88;
+            font-weight: bold;
+        }
+        
+        .confirm-btn {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #00ff88, #00d9ff);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .confirm-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.5);
+        }
+        
+        .confirm-btn:disabled {
+            background: #4a4a6a;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* 底部留空間給固定按鈕 */
+        .content {
+            padding-bottom: 100px;
+        }
+        
+        /* 燈箱 */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .lightbox.active {
+            display: flex;
+        }
+        
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>🎨 素材預覽</h1>
+        
+        <div class="section">
+            <h2><span class="icon">👤</span> 角色</h2>
+            <div id="characters-container">
+                <!-- 動態生成 -->
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><span class="icon">🖼️</span> 場景</h2>
+            <div id="scenes-container">
+                <!-- 動態生成 -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="confirm-section">
+        <div class="selection-summary">
+            已選擇: <span class="count" id="selection-count">0</span> / <span id="total-count">0</span>
+        </div>
+        <button class="confirm-btn" onclick="saveSelections()" id="confirm-btn" disabled>
+            ✓ 確認選擇
+        </button>
+    </div>
+    
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <script>
+        // 資料會從外部注入
+        const previewData = {{PREVIEW_DATA}};
+        
+        let selections = {
+            characters: {},
+            scenes: {}
+        };
+        
+        function init() {
+            renderCharacters();
+            renderScenes();
+            updateSummary();
+        }
+        
+        function renderCharacters() {
+            const container = document.getElementById('characters-container');
+            container.innerHTML = '';
+            
+            for (const char of previewData.characters) {
+                const group = document.createElement('div');
+                group.className = 'item-group';
+                group.innerHTML = `
+                    <div class="item-header">
+                        <div>
+                            <div class="item-name">${char.name}</div>
+                            <div class="item-desc">${char.description || ''}</div>
+                        </div>
+                    </div>
+                    <div class="concept-grid" id="char-grid-${char.id}">
+                        ${char.concepts.map((path, i) => `
+                            <div class="concept-item" 
+                                 data-type="character" 
+                                 data-id="${char.id}" 
+                                 data-concept="concept_${i+1}"
+                                 onclick="selectConcept(this)">
+                                <img src="${path}" alt="概念 ${i+1}" ondblclick="openLightbox('${path}')">
+                                <div class="check-mark">✓</div>
+                                <div class="concept-label">概念 ${i+1}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <input type="text" class="notes-input" 
+                           placeholder="備註（可選）" 
+                           data-type="character" 
+                           data-id="${char.id}"
+                           onchange="updateNotes(this)">
+                `;
+                container.appendChild(group);
+            }
+        }
+        
+        function renderScenes() {
+            const container = document.getElementById('scenes-container');
+            container.innerHTML = '';
+            
+            for (const scene of previewData.scenes) {
+                const group = document.createElement('div');
+                group.className = 'item-group';
+                group.innerHTML = `
+                    <div class="item-header">
+                        <div>
+                            <div class="item-name">${scene.name}</div>
+                            <div class="item-desc">${scene.description || ''} ${scene.time_of_day ? '| ' + scene.time_of_day : ''}</div>
+                        </div>
+                    </div>
+                    <div class="concept-grid" id="scene-grid-${scene.id}">
+                        ${scene.concepts.map((path, i) => `
+                            <div class="concept-item" 
+                                 data-type="scene" 
+                                 data-id="${scene.id}" 
+                                 data-concept="concept_${i+1}"
+                                 onclick="selectConcept(this)">
+                                <img src="${path}" alt="概念 ${i+1}" ondblclick="openLightbox('${path}')">
+                                <div class="check-mark">✓</div>
+                                <div class="concept-label">概念 ${i+1}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <input type="text" class="notes-input" 
+                           placeholder="備註（可選）" 
+                           data-type="scene" 
+                           data-id="${scene.id}"
+                           onchange="updateNotes(this)">
+                `;
+                container.appendChild(group);
+            }
+        }
+        
+        function selectConcept(element) {
+            const type = element.dataset.type;
+            const id = element.dataset.id;
+            const concept = element.dataset.concept;
+            
+            // 取消同組其他選擇
+            const grid = element.parentElement;
+            grid.querySelectorAll('.concept-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // 選擇此項
+            element.classList.add('selected');
+            
+            // 更新選擇
+            if (type === 'character') {
+                selections.characters[id] = {
+                    selected_concept: concept,
+                    concept_file: element.querySelector('img').src,
+                    notes: ''
+                };
+            } else {
+                selections.scenes[id] = {
+                    selected_concept: concept,
+                    concept_file: element.querySelector('img').src,
+                    notes: ''
+                };
+            }
+            
+            updateSummary();
+        }
+        
+        function updateNotes(input) {
+            const type = input.dataset.type;
+            const id = input.dataset.id;
+            
+            if (type === 'character' && selections.characters[id]) {
+                selections.characters[id].notes = input.value;
+            } else if (type === 'scene' && selections.scenes[id]) {
+                selections.scenes[id].notes = input.value;
+            }
+        }
+        
+        function updateSummary() {
+            const charCount = Object.keys(selections.characters).length;
+            const sceneCount = Object.keys(selections.scenes).length;
+            const totalSelected = charCount + sceneCount;
+            
+            const totalItems = previewData.characters.length + previewData.scenes.length;
+            
+            document.getElementById('selection-count').textContent = totalSelected;
+            document.getElementById('total-count').textContent = totalItems;
+            
+            const btn = document.getElementById('confirm-btn');
+            btn.disabled = totalSelected < totalItems;
+        }
+        
+        function saveSelections() {
+            const data = {
+                selected_at: new Date().toISOString(),
+                characters: selections.characters,
+                scenes: selections.scenes
+            };
+            
+            // 下載 JSON
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'selections.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            alert('選擇已儲存！請將 selections.json 放到輸出目錄中，然後執行下一步。');
+        }
+        
+        function openLightbox(src) {
+            event.stopPropagation();
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox').classList.add('active');
+        }
+        
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+        
+        // 初始化
+        init();
+    </script>
+</body>
+</html>

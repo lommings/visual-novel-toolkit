@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>素材 Prompt 編輯器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+        
+        h2 {
+            color: #7c83fd;
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #7c83fd;
+        }
+        
+        .card {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 1.3em;
+            color: #fff;
+        }
+        
+        .card-subtitle {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .prompt-textarea {
+            width: 100%;
+            min-height: 120px;
+            background: #0f0f23;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #eee;
+            padding: 12px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        
+        .prompt-textarea:focus {
+            outline: none;
+            border-color: #7c83fd;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #7c83fd;
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background: #6a72e0;
+        }
+        
+        .btn-primary:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+        }
+        
+        .btn-secondary:hover {
+            background: #444;
+        }
+        
+        select {
+            padding: 10px 15px;
+            background: #0f0f23;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #eee;
+            font-size: 14px;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #7c83fd;
+        }
+        
+        label {
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .select-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .preview-container {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .preview-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .preview-item:hover {
+            border-color: #7c83fd;
+        }
+        
+        .preview-item.selected {
+            border-color: #4ade80;
+        }
+        
+        .preview-item img {
+            width: 100%;
+            display: block;
+        }
+        
+        .preview-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            padding: 8px;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .status {
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .status-generating {
+            background: #fbbf24;
+            color: #000;
+        }
+        
+        .status-done {
+            background: #4ade80;
+            color: #000;
+        }
+        
+        .status-error {
+            background: #f87171;
+            color: #000;
+        }
+        
+        .actions-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #16213e;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
+        }
+        
+        .actions-bar .info {
+            color: #888;
+        }
+        
+        .spacer {
+            height: 80px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #333;
+            border-top-color: #7c83fd;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .story-description {
+            margin-bottom: 15px;
+        }
+        
+        .story-description label {
+            display: block;
+            margin-bottom: 5px;
+            color: #888;
+            font-size: 13px;
+        }
+        
+        .description-box {
+            background: #0f0f23;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 14px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+        
+        .description-box em {
+            color: #7c83fd;
+        }
+        
+        .visual-prompt-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        
+        .visual-prompt-section label {
+            color: #4ade80;
+            font-size: 13px;
+        }
+        
+        .btn-small {
+            padding: 5px 12px;
+            font-size: 12px;
+        }
+        
+        .visual-details {
+            margin-bottom: 15px;
+        }
+        
+        .details-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px;
+            background: #0a0a1a;
+            border-radius: 6px;
+        }
+        
+        .detail-tag {
+            background: #1a1a3e;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #ccc;
+        }
+        
+        .detail-tag strong {
+            color: #7c83fd;
+            margin-right: 4px;
+        }
+        
+        .expression-btn-container {
+            grid-column: 1 / -1;
+            background: #1a3a1a;
+            border: 1px solid #4ade80;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .selected-info {
+            color: #4ade80;
+            font-weight: 500;
+        }
+        
+        .concepts-count {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .concepts-count input {
+            width: 60px;
+            padding: 8px;
+            background: #0f0f23;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #eee;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 素材 Prompt 編輯器</h1>
+    
+    <h2>👤 角色 Characters</h2>
+    <div id="characters-container"></div>
+    
+    <h2>🖼️ 場景 Scenes</h2>
+    <div id="scenes-container"></div>
+    
+    <div class="spacer"></div>
+    
+    <div class="actions-bar">
+        <div class="info">
+            <span id="status-text">1️⃣ 先用「AI 生成」產生視覺 Prompt → 2️⃣ 編輯確認 → 3️⃣ 生成預覽圖</span>
+        </div>
+        <div>
+            <button class="btn btn-secondary" onclick="generateAllVisualPrompts()">🤖 全部 AI 生成 Prompt</button>
+            <button class="btn btn-secondary" onclick="savePrompts()">💾 儲存</button>
+            <button class="btn btn-primary" onclick="generateAll()">🎨 全部生成預覽圖</button>
+            <button class="btn btn-primary" onclick="openPreviewSelector()">📋 選擇預覽圖</button>
+        </div>
+    </div>
+    
+    <script>
+        // 從後端注入的資料
+        const assetsData = {{ASSETS_DATA}};
+        const config = {{CONFIG_DATA}};
+        
+        // 可用的模型和風格
+        const imageModels = [
+            { id: 'gemini-3-pro-image-preview', name: 'Gemini 3 Pro (免費)' },
+            { id: 'imagen-4.0-generate-001', name: 'Imagen 4 ($0.03)' },
+            { id: 'imagen-4.0-fast-generate-001', name: 'Imagen 4 Fast ($0.02)' },
+            { id: 'stable_diffusion', name: 'Stable Diffusion (本地)' }
+        ];
+        
+        // SD 模型列表（從 config 讀取）
+        const sdModels = config.image_generation?.stable_diffusion?.available_models || [
+            { name: 'Default', file: 'default' }
+        ];
+        
+        const visualStyles = [
+            { id: 'anime', name: '動漫風格' },
+            { id: 'semi_realistic', name: '半寫實' },
+            { id: 'natural', name: '自然風景' },
+            { id: 'fantasy', name: '奇幻' },
+            { id: 'cyberpunk', name: '賽博龐克' },
+            { id: 'oil_painting', name: '油畫' },
+            { id: 'watercolor', name: '水彩' }
+        ];
+        
+        // 儲存編輯後的資料
+        let editedData = {
+            characters: {},
+            scenes: {}
+        };
+        
+        // 自動儲存（防抖）
+        let saveTimeout = null;
+        function autoSave() {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(async () => {
+                try {
+                    await fetch('/api/save-session', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(editedData)
+                    });
+                    console.log('[自動儲存] 完成');
+                } catch (e) {
+                    console.error('[自動儲存] 失敗:', e);
+                }
+            }, 1000);  // 1 秒後儲存
+        }
+        
+        // 載入工作階段
+        async function loadSession() {
+            try {
+                const response = await fetch('/api/load-session');
+                const result = await response.json();
+                if (result.success && result.data) {
+                    console.log('[載入工作階段] 找到已儲存的資料');
+                    return result.data;
+                }
+            } catch (e) {
+                console.log('[載入工作階段] 無儲存資料或載入失敗');
+            }
+            return null;
+        }
+        
+        // 初始化
+        async function init() {
+            // 先嘗試載入已儲存的工作階段
+            const savedSession = await loadSession();
+            
+            renderCharacters(savedSession);
+            renderScenes(savedSession);
+            
+            // 如果有儲存的資料，恢復預覽圖
+            if (savedSession) {
+                restorePreviews(savedSession);
+            }
+        }
+        
+        function renderCharacters(savedSession) {
+            const container = document.getElementById('characters-container');
+            container.innerHTML = '';
+            
+            assetsData.characters.forEach((char, index) => {
+                // 優先使用儲存的資料
+                const saved = savedSession?.characters?.[char.id];
+                const visualPrompt = saved?.prompt || char.visual_prompt || '';
+                const storyDesc = char.description || '';
+                
+                editedData.characters[char.id] = saved || {
+                    prompt: visualPrompt,
+                    story_description: storyDesc,
+                    style: 'anime',  // 預設動漫風格
+                    concepts_count: config.asset_previewer?.character_concepts_count || 4
+                };
+                
+                // 角色風格選項
+                const charStyleOptions = visualStyles.map(s => 
+                    `<option value="${s.id}" ${editedData.characters[char.id].style === s.id ? 'selected' : ''}>${s.name}</option>`
+                ).join('');
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.id = `char-${char.id}`;
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">👤 ${char.name || char.id}</div>
+                        </div>
+                        <div class="controls" style="display:flex; gap:15px; align-items:center;">
+                            <div class="select-group">
+                                <label>風格:</label>
+                                <select onchange="editedData.characters['${char.id}'].style = this.value; autoSave();">
+                                    ${charStyleOptions}
+                                </select>
+                            </div>
+                            <div class="concepts-count">
+                                <label>生成數量:</label>
+                                <input type="number" min="1" max="10" value="${editedData.characters[char.id].concepts_count}" 
+                                       onchange="editedData.characters['${char.id}'].concepts_count = parseInt(this.value); autoSave();">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="story-description">
+                        <label>📖 故事描述（原始）：</label>
+                        <div class="description-box">${storyDesc}</div>
+                    </div>
+                    <div class="visual-prompt-section">
+                        <label>🎨 視覺描述 Prompt（用於生圖）：</label>
+                        <button class="btn btn-secondary btn-small" onclick="generateVisualPrompt('character', '${char.id}')">
+                            🤖 AI 生成
+                        </button>
+                        <span id="char-ai-status-${char.id}"></span>
+                    </div>
+                    <textarea class="prompt-textarea" 
+                              id="char-prompt-${char.id}"
+                              placeholder="角色視覺描述（英文）- 點擊「AI 生成」或手動輸入..."
+                              onchange="editedData.characters['${char.id}'].prompt = this.value">${visualPrompt}</textarea>
+                    <div id="char-details-${char.id}" class="visual-details"></div>
+                    <div class="controls">
+                        <button class="btn btn-primary" onclick="generateCharacter('${char.id}')">
+                            🎨 生成預覽圖
+                        </button>
+                        <span id="char-status-${char.id}"></span>
+                    </div>
+                    <div class="preview-container" id="char-preview-${char.id}"></div>
+                `;
+                container.appendChild(card);
+                
+                // 如果有視覺細節，顯示
+                if (char.visual_details) {
+                    showVisualDetails('char', char.id, char.visual_details);
+                }
+            });
+        }
+        
+        function renderScenes(savedSession) {
+            const container = document.getElementById('scenes-container');
+            container.innerHTML = '';
+            
+            assetsData.scenes.forEach((scene, index) => {
+                // 優先使用儲存的資料
+                const saved = savedSession?.scenes?.[scene.id];
+                const visualPrompt = saved?.prompt || scene.visual_prompt || '';
+                const storyDesc = scene.description || '';
+                
+                editedData.scenes[scene.id] = saved || {
+                    prompt: visualPrompt,
+                    story_description: storyDesc,
+                    model: 'stable_diffusion',  // 預設用 SD
+                    sd_model: config.image_generation?.stable_diffusion?.default_model || 'meinamix_v12Final.safetensors',
+                    style: 'anime',
+                    concepts_count: config.asset_previewer?.scene_concepts_count || 3
+                };
+                
+                const modelOptions = imageModels.map(m => 
+                    `<option value="${m.id}" ${m.id === 'stable_diffusion' ? 'selected' : ''}>${m.name}</option>`
+                ).join('');
+                
+                const sdModelOptions = sdModels.map(m => 
+                    `<option value="${m.file}">${m.name}${m.desc ? ' - ' + m.desc : ''}</option>`
+                ).join('');
+                
+                const styleOptions = visualStyles.map(s => 
+                    `<option value="${s.id}">${s.name}</option>`
+                ).join('');
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.id = `scene-${scene.id}`;
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">🖼️ ${scene.name || scene.id}</div>
+                        </div>
+                        <div class="concepts-count">
+                            <label>生成數量:</label>
+                            <input type="number" min="1" max="10" value="${editedData.scenes[scene.id].concepts_count}"
+                                   onchange="editedData.scenes['${scene.id}'].concepts_count = parseInt(this.value)">
+                        </div>
+                    </div>
+                    <div class="story-description">
+                        <label>📖 場景描述（原始）：</label>
+                        <div class="description-box">${storyDesc} <em>(${scene.time_of_day || ''} / ${scene.mood || ''})</em></div>
+                    </div>
+                    <div class="controls" style="margin-bottom: 15px;">
+                        <div class="select-group">
+                            <label>模型:</label>
+                            <select id="scene-model-${scene.id}" onchange="onSceneModelChange('${scene.id}', this.value)">
+                                ${modelOptions}
+                            </select>
+                        </div>
+                        <div class="select-group" id="sd-model-group-${scene.id}" style="display:${editedData.scenes[scene.id].model === 'stable_diffusion' ? 'block' : 'none'};">
+                            <label>SD模型:</label>
+                            <select id="scene-sd-model-${scene.id}" onchange="editedData.scenes['${scene.id}'].sd_model = this.value">
+                                ${sdModelOptions}
+                            </select>
+                        </div>
+                        <div class="select-group">
+                            <label>風格:</label>
+                            <select onchange="editedData.scenes['${scene.id}'].style = this.value">
+                                ${styleOptions}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="visual-prompt-section">
+                        <label>🎨 視覺描述 Prompt（用於生圖）：</label>
+                        <button class="btn btn-secondary btn-small" onclick="generateVisualPrompt('scene', '${scene.id}')">
+                            🤖 AI 生成
+                        </button>
+                        <span id="scene-ai-status-${scene.id}"></span>
+                    </div>
+                    <textarea class="prompt-textarea" 
+                              id="scene-prompt-${scene.id}"
+                              placeholder="場景視覺描述（英文）- 點擊「AI 生成」或手動輸入..."
+                              onchange="editedData.scenes['${scene.id}'].prompt = this.value">${visualPrompt}</textarea>
+                    <div id="scene-details-${scene.id}" class="visual-details"></div>
+                    <div class="controls">
+                        <button class="btn btn-primary" onclick="generateScene('${scene.id}')">
+                            🎨 生成預覽圖
+                        </button>
+                        <span id="scene-status-${scene.id}"></span>
+                    </div>
+                    <div class="preview-container" id="scene-preview-${scene.id}"></div>
+                `;
+                container.appendChild(card);
+                
+                // 如果有視覺細節，顯示
+                if (scene.visual_details) {
+                    showVisualDetails('scene', scene.id, scene.visual_details);
+                }
+            });
+        }
+        
+        async function generateVisualPrompt(type, id) {
+            const statusEl = document.getElementById(`${type === 'character' ? 'char' : 'scene'}-ai-status-${id}`);
+            const promptEl = document.getElementById(`${type === 'character' ? 'char' : 'scene'}-prompt-${id}`);
+            const detailsEl = document.getElementById(`${type === 'character' ? 'char' : 'scene'}-details-${id}`);
+            
+            statusEl.innerHTML = '<span class="status status-generating"><span class="loading"></span>AI 生成中...</span>';
+            
+            try {
+                const response = await fetch('/api/generate-visual-prompt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, id })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusEl.innerHTML = '<span class="status status-done">✓ AI 生成完成</span>';
+                    
+                    // 更新 prompt
+                    promptEl.value = result.visual_prompt;
+                    if (type === 'character') {
+                        editedData.characters[id].prompt = result.visual_prompt;
+                    } else {
+                        editedData.scenes[id].prompt = result.visual_prompt;
+                    }
+                    
+                    // 顯示視覺細節
+                    if (result.visual_details) {
+                        showVisualDetails(type === 'character' ? 'char' : 'scene', id, result.visual_details);
+                    }
+                } else {
+                    statusEl.innerHTML = `<span class="status status-error">❌ ${result.error}</span>`;
+                }
+            } catch (err) {
+                statusEl.innerHTML = `<span class="status status-error">❌ ${err.message}</span>`;
+            }
+        }
+        
+        // 恢復已生成的預覽圖
+        function restorePreviews(savedSession) {
+            console.log('[恢復預覽] 開始恢復已生成的圖片...');
+            
+            // 恢復角色預覽
+            const restoreTimestamp = Date.now();
+            for (const [charId, data] of Object.entries(savedSession.characters || {})) {
+                if (data.generated_images && data.generated_images.length > 0) {
+                    const previewEl = document.getElementById(`char-preview-${charId}`);
+                    if (previewEl) {
+                        previewEl.innerHTML = data.generated_images.map((img, i) => `
+                            <div class="preview-item ${data.selected === img ? 'selected' : ''}" 
+                                 onclick="selectPreview(this, 'char', '${charId}', '${img}')">
+                                <img src="${img}?t=${restoreTimestamp}" alt="Concept ${i+1}">
+                                <div class="preview-label">Concept ${i+1}</div>
+                            </div>
+                        `).join('');
+                        
+                        // 如果有選中的圖，顯示表情按鈕
+                        if (data.selected) {
+                            showExpressionButton(charId, data.selected);
+                        }
+                        
+                        // 更新狀態
+                        const statusEl = document.getElementById(`char-status-${charId}`);
+                        if (statusEl) statusEl.innerHTML = '<span class="status status-done">✓ 已載入</span>';
+                    }
+                }
+                
+                // 恢復 prompt 到 textarea
+                const promptEl = document.getElementById(`char-prompt-${charId}`);
+                if (promptEl && data.prompt) {
+                    promptEl.value = data.prompt;
+                }
+            }
+            
+            // 恢復場景預覽
+            for (const [sceneId, data] of Object.entries(savedSession.scenes || {})) {
+                if (data.generated_images && data.generated_images.length > 0) {
+                    const previewEl = document.getElementById(`scene-preview-${sceneId}`);
+                    if (previewEl) {
+                        previewEl.innerHTML = data.generated_images.map((img, i) => `
+                            <div class="preview-item ${data.selected === img ? 'selected' : ''}" 
+                                 onclick="selectPreview(this, 'scene', '${sceneId}', '${img}')">
+                                <img src="${img}?t=${restoreTimestamp}" alt="Concept ${i+1}">
+                                <div class="preview-label">Concept ${i+1}</div>
+                            </div>
+                        `).join('');
+                        
+                        const statusEl = document.getElementById(`scene-status-${sceneId}`);
+                        if (statusEl) statusEl.innerHTML = '<span class="status status-done">✓ 已載入</span>';
+                    }
+                }
+                
+                // 恢復 prompt 到 textarea
+                const promptEl = document.getElementById(`scene-prompt-${sceneId}`);
+                if (promptEl && data.prompt) {
+                    promptEl.value = data.prompt;
+                }
+            }
+            
+            console.log('[恢復預覽] 完成');
+        }
+        
+        function onSceneModelChange(sceneId, model) {
+            editedData.scenes[sceneId].model = model;
+            const sdModelGroup = document.getElementById(`sd-model-group-${sceneId}`);
+            if (model === 'stable_diffusion') {
+                sdModelGroup.style.display = 'block';
+            } else {
+                sdModelGroup.style.display = 'none';
+            }
+        }
+        
+        // 初始化時顯示 SD 模型選擇（因為預設是 SD）
+        function initSceneModelVisibility() {
+            for (const scene of assetsData.scenes || []) {
+                const model = editedData.scenes[scene.id]?.model;
+                if (model === 'stable_diffusion') {
+                    const sdModelGroup = document.getElementById(`sd-model-group-${scene.id}`);
+                    if (sdModelGroup) sdModelGroup.style.display = 'block';
+                }
+            }
+        }
+        
+        function showVisualDetails(prefix, id, details) {
+            const el = document.getElementById(`${prefix}-details-${id}`);
+            if (!el || !details) return;
+            
+            const items = Object.entries(details)
+                .filter(([k, v]) => v && v.trim())
+                .map(([k, v]) => `<span class="detail-tag"><strong>${k}:</strong> ${v}</span>`)
+                .join('');
+            
+            el.innerHTML = items ? `<div class="details-grid">${items}</div>` : '';
+        }
+        
+        async function generateCharacter(charId) {
+            const statusEl = document.getElementById(`char-status-${charId}`);
+            const previewEl = document.getElementById(`char-preview-${charId}`);
+            const data = editedData.characters[charId];
+            
+            // 從 textarea 取得最新的 prompt（以防 editedData 沒同步）
+            const promptEl = document.getElementById(`char-prompt-${charId}`);
+            if (promptEl && promptEl.value) {
+                data.prompt = promptEl.value;
+            }
+            
+            console.log('generateCharacter called for:', charId);
+            console.log('data:', data);
+            console.log('prompt from textarea:', promptEl?.value);
+            
+            if (!data.prompt || data.prompt.trim() === '') {
+                statusEl.innerHTML = '<span class="status status-error">❌ 請先生成或輸入視覺 Prompt</span>';
+                return;
+            }
+            
+            statusEl.innerHTML = '<span class="status status-generating"><span class="loading"></span>生成中...</span>';
+            
+            try {
+                const requestBody = {
+                    id: charId,
+                    prompt: data.prompt,
+                    count: data.concepts_count
+                };
+                console.log('Request body:', requestBody);
+                
+                const response = await fetch('/api/generate-character', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const result = await response.json();
+                console.log('Response:', result);
+                
+                if (result.success) {
+                    statusEl.innerHTML = '<span class="status status-done">✓ 完成</span>';
+                    console.log('Images:', result.images);
+                    
+                    if (result.images && result.images.length > 0) {
+                        // 儲存生成的圖片路徑
+                        editedData.characters[charId].generated_images = result.images;
+                        
+                        // 加入時間戳防止快取
+                        const timestamp = Date.now();
+                        previewEl.innerHTML = result.images.map((img, i) => `
+                            <div class="preview-item" onclick="selectPreview(this, 'char', '${charId}', '${img}')">
+                                <img src="${img}?t=${timestamp}" alt="Concept ${i+1}" onerror="console.error('Image load error:', '${img}')">
+                                <div class="preview-label">Concept ${i+1}</div>
+                            </div>
+                        `).join('');
+                        
+                        // 自動儲存
+                        autoSave();
+                    } else {
+                        statusEl.innerHTML = '<span class="status status-error">❌ 沒有生成圖片</span>';
+                    }
+                } else {
+                    statusEl.innerHTML = `<span class="status status-error">❌ ${result.error}</span>`;
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                statusEl.innerHTML = `<span class="status status-error">❌ ${err.message}</span>`;
+            }
+        }
+        
+        async function generateScene(sceneId) {
+            const statusEl = document.getElementById(`scene-status-${sceneId}`);
+            const previewEl = document.getElementById(`scene-preview-${sceneId}`);
+            const data = editedData.scenes[sceneId];
+            
+            statusEl.innerHTML = '<span class="status status-generating"><span class="loading"></span>生成中...</span>';
+            
+            try {
+                const response = await fetch('/api/generate-scene', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: sceneId,
+                        prompt: data.prompt,
+                        model: data.model,
+                        sd_model: data.sd_model,  // SD 模型
+                        style: data.style,
+                        count: data.concepts_count
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusEl.innerHTML = '<span class="status status-done">✓ 完成</span>';
+                    
+                    // 儲存生成的圖片路徑
+                    editedData.scenes[sceneId].generated_images = result.images;
+                    
+                    // 加入時間戳防止快取
+                    const timestamp = Date.now();
+                    previewEl.innerHTML = result.images.map((img, i) => `
+                        <div class="preview-item" onclick="selectPreview(this, 'scene', '${sceneId}', '${img}')">
+                            <img src="${img}?t=${timestamp}" alt="Concept ${i+1}">
+                            <div class="preview-label">Concept ${i+1}</div>
+                        </div>
+                    `).join('');
+                    
+                    // 自動儲存
+                    autoSave();
+                } else {
+                    statusEl.innerHTML = `<span class="status status-error">❌ ${result.error}</span>`;
+                }
+            } catch (err) {
+                statusEl.innerHTML = `<span class="status status-error">❌ ${err.message}</span>`;
+            }
+        }
+        
+        function selectPreview(el, type, id, path) {
+            // 移除同組的其他選擇
+            el.parentElement.querySelectorAll('.preview-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            el.classList.add('selected');
+            
+            // 記錄選擇（包含路徑和 prompt）
+            if (type === 'char') {
+                const data = editedData.characters[id];
+                data.selected = path;
+                data.selected_prompt = data.prompt;  // 儲存當時使用的 prompt
+                console.log(`[選擇] 角色 ${id}: ${path}`);
+                console.log(`[Prompt] ${data.prompt}`);
+                // 顯示生成表情按鈕
+                showExpressionButton(id, path);
+            } else {
+                const data = editedData.scenes[id];
+                data.selected = path;
+                data.selected_prompt = data.prompt;  // 儲存當時使用的 prompt
+                console.log(`[選擇] 場景 ${id}: ${path}`);
+            }
+            
+            // 自動儲存選擇
+            autoSave();
+        }
+        
+        function showExpressionButton(charId, referencePath) {
+            const container = document.getElementById(`char-preview-${charId}`);
+            
+            // 移除舊的按鈕（如果有）
+            const oldBtn = container.querySelector('.expression-btn-container');
+            if (oldBtn) oldBtn.remove();
+            
+            // 添加生成表情按鈕
+            const btnContainer = document.createElement('div');
+            btnContainer.className = 'expression-btn-container';
+            // 在圖片上加取消選擇按鈕
+            const selectedImg = container.querySelector('.preview-item.selected');
+            if (selectedImg && !selectedImg.querySelector('.cancel-select-btn')) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'cancel-select-btn';
+                cancelBtn.innerHTML = '✕';
+                cancelBtn.title = '取消選擇';
+                cancelBtn.style.cssText = 'position:absolute; top:5px; right:5px; width:24px; height:24px; border-radius:50%; background:rgba(255,0,0,0.8); color:white; border:none; cursor:pointer; font-size:14px; z-index:10;';
+                cancelBtn.onclick = (e) => { e.stopPropagation(); cancelSelection('char', charId); };
+                selectedImg.style.position = 'relative';
+                selectedImg.appendChild(cancelBtn);
+            }
+            
+            btnContainer.innerHTML = `
+                <div class="selected-info">✅ 已選定此圖為角色基準</div>
+                <div style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    <button class="btn btn-primary" onclick="generateExpressionsSD('${charId}', '${referencePath}')">
+                        🎨 SD 生成表情
+                    </button>
+                </div>
+                <div style="margin-top: 10px; display: flex; gap: 15px; align-items: center; font-size: 13px;">
+                    <label>去噪強度：
+                        <input type="range" id="denoising-${charId}" min="0.1" max="0.6" step="0.05" value="0.35" 
+                               style="width: 100px; vertical-align: middle;"
+                               oninput="document.getElementById('denoising-val-${charId}').textContent = this.value">
+                        <span id="denoising-val-${charId}">0.35</span>
+                    </label>
+                    <small style="color: #888;">（越低越像原圖）</small>
+                </div>
+                <span id="expr-status-${charId}"></span>
+            `;
+            container.appendChild(btnContainer);
+        }
+        
+        function cancelSelection(type, id) {
+            if (type === 'char') {
+                // 清除選擇
+                delete editedData.characters[id].selected;
+                delete editedData.characters[id].selected_prompt;
+                
+                // 移除所有選中狀態
+                const container = document.getElementById(`char-preview-${id}`);
+                container.querySelectorAll('.preview-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                
+                // 移除表情按鈕
+                const btnContainer = container.querySelector('.expression-btn-container');
+                if (btnContainer) btnContainer.remove();
+                
+                console.log(`[取消選擇] 角色 ${id}`);
+            } else {
+                delete editedData.scenes[id].selected;
+                delete editedData.scenes[id].selected_prompt;
+                
+                const container = document.getElementById(`scene-preview-${id}`);
+                container.querySelectorAll('.preview-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                
+                console.log(`[取消選擇] 場景 ${id}`);
+            }
+            
+            autoSave();
+        }
+        
+        function clearExpressions(charId) {
+            // 清除表情預覽，可以重新生成
+            const exprPreviewEl = document.getElementById(`expr-preview-${charId}`);
+            if (exprPreviewEl) {
+                exprPreviewEl.innerHTML = '<div style="color: #888; padding: 20px; text-align: center;">已清除，可重新生成表情</div>';
+            }
+            const statusEl = document.getElementById(`expr-status-${charId}`);
+            if (statusEl) {
+                statusEl.innerHTML = '';
+            }
+            // 清除儲存的表情資料
+            if (editedData.characters[charId]) {
+                delete editedData.characters[charId].expressions;
+            }
+        }
+        
+        async function generateExpressionsSD(charId, referencePath) {
+            const statusEl = document.getElementById(`expr-status-${charId}`);
+            const container = document.getElementById(`char-preview-${charId}`);
+            const denoisingInput = document.getElementById(`denoising-${charId}`);
+            const denoising = denoisingInput ? parseFloat(denoisingInput.value) : 0.35;
+            
+            statusEl.innerHTML = '<span class="status status-generating"><span class="loading"></span>SD 生成表情中...</span>';
+            
+            const charData = editedData.characters[charId];
+            const savedPrompt = charData.selected_prompt || charData.prompt;
+            
+            console.log(`[SD 生成表情] denoising: ${denoising}, prompt: ${savedPrompt?.substring(0, 50)}...`);
+            
+            try {
+                const response = await fetch('/api/generate-expressions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: charId,
+                        reference_path: referencePath,
+                        prompt: savedPrompt,
+                        method: 'sd',
+                        denoising: denoising
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    charData.expressions = result.expressions;
+                    
+                    const timestamp = Date.now();
+                    const expressionNames = {
+                        'normal': '😐 普通',
+                        'happy': '😊 開心',
+                        'sad': '😢 悲傷',
+                        'angry': '😠 生氣',
+                        'surprised': '😲 驚訝',
+                        'shy': '😳 害羞',
+                        'thinking': '🤔 思考'
+                    };
+                    
+                    let exprPreviewEl = document.getElementById(`expr-preview-${charId}`);
+                    if (!exprPreviewEl) {
+                        exprPreviewEl = document.createElement('div');
+                        exprPreviewEl.id = `expr-preview-${charId}`;
+                        exprPreviewEl.className = 'expression-preview';
+                        exprPreviewEl.style.cssText = 'margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px;';
+                        container.appendChild(exprPreviewEl);
+                    }
+                    
+                    exprPreviewEl.innerHTML = `
+                        <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">🎭 SD 表情預覽 (denoising: ${denoising})</span>
+                            <button class="btn btn-small" onclick="clearExpressions('${charId}')" 
+                                    style="padding: 4px 10px; font-size: 12px; background: #c44;">
+                                🗑️ 清除重生
+                            </button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
+                            ${Object.entries(result.expressions).map(([expr, path]) => `
+                                <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 5px; text-align: center;">
+                                    <img src="${path}?t=${timestamp}" alt="${expr}" 
+                                         style="width: 100%; height: auto; max-height: 150px; object-fit: contain; border-radius: 4px;">
+                                    <div style="font-size: 12px; margin-top: 5px; color: #aaa;">${expressionNames[expr] || expr}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="margin-top: 10px; font-size: 12px; color: #888;">
+                            💡 不滿意？調整去噪強度後點「清除重生」重新生成
+                        </div>
+                    `;
+                    
+                    statusEl.innerHTML = `<span class="status status-success">✓ SD 生成完成: ${Object.keys(result.expressions).length} 個表情</span>`;
+                    autoSave();
+                } else {
+                    statusEl.innerHTML = `<span class="status status-error">✗ ${result.error}</span>`;
+                }
+            } catch (e) {
+                statusEl.innerHTML = `<span class="status status-error">✗ ${e.message}</span>`;
+            }
+        }
+        
+        async function generateExpressions(charId, referencePath) {
+            const statusEl = document.getElementById(`expr-status-${charId}`);
+            const container = document.getElementById(`char-preview-${charId}`);
+            statusEl.innerHTML = '<span class="status status-generating"><span class="loading"></span>生成表情中...</span>';
+            
+            // 取得儲存的 prompt（用於一致性）
+            const charData = editedData.characters[charId];
+            const savedPrompt = charData.selected_prompt || charData.prompt;
+            
+            console.log(`[生成表情] 使用 prompt: ${savedPrompt?.substring(0, 50)}...`);
+            
+            try {
+                const response = await fetch('/api/generate-expressions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: charId,
+                        reference_path: referencePath,
+                        prompt: savedPrompt  // 傳送儲存的 prompt
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 儲存表情資料
+                    charData.expressions = result.expressions;
+                    
+                    // 顯示表情預覽
+                    const timestamp = Date.now();
+                    const expressionNames = {
+                        'normal': '😐 普通',
+                        'happy': '😊 開心',
+                        'sad': '😢 悲傷',
+                        'angry': '😠 生氣',
+                        'surprised': '😲 驚訝',
+                        'embarrassed': '😳 害羞',
+                        'thinking': '🤔 思考'
+                    };
+                    
+                    // 建立表情預覽區
+                    let exprPreviewEl = document.getElementById(`expr-preview-${charId}`);
+                    if (!exprPreviewEl) {
+                        exprPreviewEl = document.createElement('div');
+                        exprPreviewEl.id = `expr-preview-${charId}`;
+                        exprPreviewEl.className = 'expression-preview';
+                        exprPreviewEl.style.cssText = 'margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px;';
+                        container.appendChild(exprPreviewEl);
+                    }
+                    
+                    exprPreviewEl.innerHTML = `
+                        <div style="margin-bottom: 10px; font-weight: bold;">🎭 表情預覽</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
+                            ${Object.entries(result.expressions).map(([expr, path]) => `
+                                <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 5px; text-align: center;">
+                                    <img src="${path}?t=${timestamp}" alt="${expr}" 
+                                         style="width: 100%; height: auto; max-height: 150px; object-fit: contain; border-radius: 4px;"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <div style="display:none; color:#f66; padding:10px;">載入失敗</div>
+                                    <div style="font-size: 12px; margin-top: 5px; color: #aaa;">${expressionNames[expr] || expr}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    const exprList = Object.entries(result.expressions)
+                        .map(([expr, path]) => `${expressionNames[expr] || expr}`)
+                        .join(', ');
+                    statusEl.innerHTML = `<span class="status status-done">✓ 完成: ${Object.keys(result.expressions).length} 個表情</span>`;
+                    
+                    autoSave();
+                } else {
+                    statusEl.innerHTML = `<span class="status status-error">❌ ${result.error}</span>`;
+                }
+            } catch (err) {
+                statusEl.innerHTML = `<span class="status status-error">❌ ${err.message}</span>`;
+            }
+        }
+        
+        async function savePrompts() {
+            try {
+                const response = await fetch('/api/save-prompts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(editedData)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Prompts 已儲存！');
+                } else {
+                    alert('儲存失敗: ' + result.error);
+                }
+            } catch (err) {
+                alert('儲存失敗: ' + err.message);
+            }
+        }
+        
+        async function generateAllVisualPrompts() {
+            if (!confirm('確定要使用 AI 生成所有角色和場景的視覺描述 Prompt？')) {
+                return;
+            }
+            
+            document.getElementById('status-text').textContent = '正在生成視覺 Prompts...';
+            
+            // 生成所有角色的視覺 prompt
+            for (const char of assetsData.characters) {
+                await generateVisualPrompt('character', char.id);
+            }
+            
+            // 生成所有場景的視覺 prompt
+            for (const scene of assetsData.scenes) {
+                await generateVisualPrompt('scene', scene.id);
+            }
+            
+            document.getElementById('status-text').textContent = '✅ 所有視覺 Prompt 生成完成！請檢查並編輯後再生成預覽圖';
+            alert('所有視覺 Prompt 生成完成！請檢查內容是否正確。');
+        }
+        
+        async function generateAll() {
+            if (!confirm('確定要生成所有角色和場景的預覽圖？這可能需要一些時間。')) {
+                return;
+            }
+            
+            // 生成所有角色
+            for (const char of assetsData.characters) {
+                await generateCharacter(char.id);
+            }
+            
+            // 生成所有場景
+            for (const scene of assetsData.scenes) {
+                await generateScene(scene.id);
+            }
+            
+            alert('全部生成完成！');
+        }
+        
+        function openPreviewSelector() {
+            // 改為匯出功能
+            exportAssets();
+        }
+        
+        async function exportAssets() {
+            // 收集所有選擇的素材
+            const selections = {
+                characters: {},
+                scenes: {}
+            };
+            
+            let hasSelection = false;
+            
+            // 收集角色選擇
+            for (const [charId, data] of Object.entries(editedData.characters)) {
+                if (data.selected) {
+                    hasSelection = true;
+                    selections.characters[charId] = {
+                        selected_image: data.selected,
+                        prompt: data.selected_prompt || data.prompt,
+                        style: data.style
+                    };
+                }
+            }
+            
+            // 收集場景選擇
+            for (const [sceneId, data] of Object.entries(editedData.scenes)) {
+                if (data.selected) {
+                    hasSelection = true;
+                    selections.scenes[sceneId] = {
+                        selected_image: data.selected,
+                        prompt: data.selected_prompt || data.prompt,
+                        model: data.model,
+                        sd_model: data.sd_model,
+                        style: data.style
+                    };
+                }
+            }
+            
+            if (!hasSelection) {
+                alert('請先選擇至少一個角色或場景圖片！\n\n點擊圖片即可選擇。');
+                return;
+            }
+            
+            // 顯示選擇摘要
+            const charCount = Object.keys(selections.characters).length;
+            const sceneCount = Object.keys(selections.scenes).length;
+            
+            const confirmed = confirm(
+                `即將匯出以下素材：\n\n` +
+                `✅ 角色: ${charCount} 個\n` +
+                `✅ 場景: ${sceneCount} 個\n\n` +
+                `確定要匯出嗎？`
+            );
+            
+            if (!confirmed) return;
+            
+            try {
+                const response = await fetch('/api/export-assets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(selections)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(
+                        `✅ 匯出成功！\n\n` +
+                        `輸出目錄: ${result.output_dir}\n\n` +
+                        `已匯出:\n` +
+                        `- ${result.characters_count} 個角色\n` +
+                        `- ${result.scenes_count} 個場景`
+                    );
+                } else {
+                    alert(`❌ 匯出失敗: ${result.error}`);
+                }
+            } catch (err) {
+                alert(`❌ 匯出失敗: ${err.message}`);
+            }
+        }
+        
+        // 啟動
+        init();
+        // 初始化 SD 模型選擇顯示
+        setTimeout(initSceneModelVisibility, 100);
+    </script>
+</body>
+</html>

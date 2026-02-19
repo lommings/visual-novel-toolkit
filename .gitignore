@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sensitive
+.env
+config.json
+
+# Output (generated content)
+output/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
