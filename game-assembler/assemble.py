@@ -12,9 +12,12 @@ import sys
 # 確保可以 import 相關模組
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from game_assembler.twee_analyzer import TweeAnalyzer
-from game_assembler.twee_enhancer import TweeEnhancer
-from game_assembler.game_builder import GameBuilder
+from twee_analyzer import TweeAnalyzer
+from twee_enhancer import TweeEnhancer
+from game_builder import GameBuilder
+
+# 加入 shared 路徑
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from shared.config_manager import ConfigManager
 
 
@@ -59,13 +62,13 @@ def main():
     
     # 驗證輸入
     if not twee_path.exists():
-        print(f"❌ Twee 檔案不存在: {twee_path}")
+        print(f"[Error] Twee file not found: {twee_path}")
         return 1
     if not assets_json.exists():
-        print(f"❌ 素材需求檔不存在: {assets_json}")
+        print(f"[Error] Assets JSON not found: {assets_json}")
         return 1
     if not assets_dir.exists():
-        print(f"❌ 素材目錄不存在: {assets_dir}")
+        print(f"[Error] Assets directory not found: {assets_dir}")
         return 1
     
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -75,7 +78,7 @@ def main():
         assets_data = json.load(f)
     
     print("=" * 50)
-    print("🎮 視覺小說遊戲組裝器")
+    print("Visual Novel Game Assembler")
     print("=" * 50)
     
     # ===== 步驟 1: 分析 Twee =====
@@ -84,12 +87,12 @@ def main():
     
     if args.scene_mapping:
         # 使用已有的場景對應
-        print(f"\n📂 載入場景對應: {args.scene_mapping}")
+        print(f"\n[Load] Scene mapping: {args.scene_mapping}")
         with open(args.scene_mapping, 'r', encoding='utf-8') as f:
             scene_mapping = json.load(f)
     elif args.skip_analysis:
         # 使用預設對應（場景代碼直接當作場景 ID）
-        print("\n⚡ 跳過分析，使用預設對應")
+        print("\n[Skip] Using default mapping")
         config = ConfigManager.load()
         analyzer = TweeAnalyzer(config)
         twee_data = analyzer.parse_twee(twee_path)
@@ -98,24 +101,24 @@ def main():
                 scene_mapping[passage['scene_code']] = passage['scene_code']
     else:
         # 使用 AI 分析
-        print("\n🔍 步驟 1/3: 分析 Twee 檔案...")
+        print("\n[Step 1/3] Analyzing Twee file...")
         config = ConfigManager.load()
         analyzer = TweeAnalyzer(config)
         
         twee_data = analyzer.parse_twee(twee_path)
-        print(f"   段落數: {len(twee_data['passages'])}")
+        print(f"  Passages: {len(twee_data['passages'])}")
         
-        print("   生成場景對應...")
+        print("  Generating scene mapping...")
         scene_mapping = analyzer.generate_scene_mapping(twee_data, assets_data)
         
         # 儲存場景對應
         mapping_path = output_dir / 'scene-mapping.json'
         with open(mapping_path, 'w', encoding='utf-8') as f:
             json.dump(scene_mapping, f, ensure_ascii=False, indent=2)
-        print(f"   ✓ 儲存至: {mapping_path}")
+        print(f"  Saved: {mapping_path}")
         
         if not args.scene_only:
-            print("   分析對話標記...")
+            print("  Analyzing dialogues...")
             dialogue_markers = analyzer.analyze_dialogues(
                 twee_data,
                 assets_data.get('characters', []),
@@ -125,30 +128,30 @@ def main():
             dialogue_path = output_dir / 'dialogue-markers.json'
             with open(dialogue_path, 'w', encoding='utf-8') as f:
                 json.dump(dialogue_markers, f, ensure_ascii=False, indent=2)
-            print(f"   ✓ 儲存至: {dialogue_path}")
+            print(f"  Saved: {dialogue_path}")
     
     if args.dialogue_markers:
-        print(f"\n📂 載入對話標記: {args.dialogue_markers}")
+        print(f"\n[Load] Dialogue markers: {args.dialogue_markers}")
         with open(args.dialogue_markers, 'r', encoding='utf-8') as f:
             dialogue_markers = json.load(f)
     
     # ===== 步驟 2: 增強 Twee =====
-    print("\n✨ 步驟 2/3: 增強 Twee 檔案...")
+    print("\n[Step 2/3] Enhancing Twee file...")
     enhanced_twee_path = output_dir / 'enhanced-story.twee'
     
     enhancer = TweeEnhancer(scene_mapping, dialogue_markers)
     enhancer.enhance_twee(twee_path, enhanced_twee_path)
-    print(f"   ✓ 增強版 Twee: {enhanced_twee_path}")
+    print(f"  Enhanced Twee: {enhanced_twee_path}")
     
     # ===== 步驟 3: 組裝遊戲 =====
-    print("\n🎮 步驟 3/3: 組裝遊戲...")
+    print("\n[Step 3/3] Building game...")
     builder = GameBuilder(output_dir)
     game_path = builder.build_game(enhanced_twee_path, assets_dir)
     
     print("\n" + "=" * 50)
-    print("✅ 組裝完成！")
-    print(f"   遊戲檔案: {game_path}")
-    print(f"   用瀏覽器開啟即可遊玩")
+    print("[Done] Assembly complete!")
+    print(f"  Game file: {game_path}")
+    print(f"  Open in browser to play")
     print("=" * 50)
     
     return 0

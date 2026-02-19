@@ -130,7 +130,7 @@ def generate_enhanced_twee(
     enhancer = TweeEnhancer(scene_mapping, dialogue_markers)
     enhancer.enhance_twee(twee_path, output_path)
     
-    print(f"✅ 增強版 Twee 已儲存至: {output_path}")
+    print(f"[Done] Enhanced Twee saved: {output_path}")
 
 
 def main():

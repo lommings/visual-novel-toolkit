@@ -13,7 +13,7 @@ import sys
 # 加入 shared 模組路徑
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from shared.config_manager import ConfigManager
-from shared.llm_client import LLMClient
+from shared.ai_client import AIClient
 
 
 class TweeAnalyzer:
@@ -21,7 +21,8 @@ class TweeAnalyzer:
     
     def __init__(self, config: ConfigManager):
         self.config = config
-        self.llm = LLMClient(config)
+        # AIClient 需要 dict 格式的 config
+        self.ai = AIClient(config.config if hasattr(config, 'config') else config)
     
     def parse_twee(self, twee_path: Path) -> Dict:
         """解析 Twee 檔案，提取段落和場景標記"""
@@ -134,9 +135,7 @@ class TweeAnalyzer:
             assets_data.get('scenes', [])
         )
         
-        response = self.llm.chat([
-            {"role": "user", "content": prompt}
-        ])
+        response = self.ai.generate_text(prompt)
         
         # 解析 JSON 回應
         try:
@@ -165,9 +164,7 @@ class TweeAnalyzer:
             prompt = self.analyze_dialogue_prompt(name, data['text'], characters)
             
             try:
-                response = self.llm.chat([
-                    {"role": "user", "content": prompt}
-                ])
+                response = self.ai.generate_text(prompt)
                 
                 # 解析 JSON 回應
                 json_match = re.search(r'\[.*\]', response, re.DOTALL)
@@ -200,8 +197,8 @@ def main():
     # 解析 Twee
     twee_path = Path(args.twee_path)
     twee_data = analyzer.parse_twee(twee_path)
-    print(f"📖 解析 Twee: {twee_data['title']}")
-    print(f"   段落數: {len(twee_data['passages'])}")
+    print(f"[Twee] {twee_data['title']}")
+    print(f"  Passages: {len(twee_data['passages'])}")
     
     # 載入素材資料
     assets_path = Path(args.assets_json)
@@ -213,17 +210,17 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # 生成場景對應
-    print("\n🎬 生成場景對應...")
+    print("\n[AI] Generating scene mapping...")
     scene_mapping = analyzer.generate_scene_mapping(twee_data, assets_data)
     
     mapping_path = output_dir / 'scene-mapping.json'
     with open(mapping_path, 'w', encoding='utf-8') as f:
         json.dump(scene_mapping, f, ensure_ascii=False, indent=2)
-    print(f"   儲存至: {mapping_path}")
+    print(f"  Saved: {mapping_path}")
     
     if not args.scene_only:
         # 分析對話
-        print("\n💬 分析對話標記...")
+        print("\n[AI] Analyzing dialogues...")
         dialogues = analyzer.analyze_dialogues(
             twee_data, 
             assets_data.get('characters', []),
@@ -233,9 +230,9 @@ def main():
         dialogue_path = output_dir / 'dialogue-markers.json'
         with open(dialogue_path, 'w', encoding='utf-8') as f:
             json.dump(dialogues, f, ensure_ascii=False, indent=2)
-        print(f"   儲存至: {dialogue_path}")
+        print(f"  Saved: {dialogue_path}")
     
-    print("\n✅ 分析完成!")
+    print("\n[Done] Analysis complete!")
 
 
 if __name__ == '__main__':

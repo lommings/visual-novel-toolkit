@@ -384,13 +384,13 @@ class GameBuilder:
         """組裝遊戲"""
         # 解析 Twee
         game_data = self.parse_enhanced_twee(twee_path)
-        print(f"📖 遊戲標題: {game_data['title']}")
-        print(f"   段落數: {len(game_data['passages'])}")
+        print(f"[Game] Title: {game_data['title']}")
+        print(f"  Passages: {len(game_data['passages'])}")
         
         # 收集素材
         assets = self.collect_assets(assets_dir)
-        print(f"   角色數: {len(assets['characters'])}")
-        print(f"   場景數: {len(assets['scenes'])}")
+        print(f"  Characters: {len(assets['characters'])}")
+        print(f"  Scenes: {len(assets['scenes'])}")
         
         # 複製素材
         self.copy_assets(assets_dir)
@@ -405,8 +405,8 @@ class GameBuilder:
         output_path = self.output_dir / 'game.html'
         output_path.write_text(html, encoding='utf-8')
         
-        print(f"\n✅ 遊戲已組裝完成!")
-        print(f"   輸出位置: {output_path}")
+        print(f"\n[Done] Game assembled!")
+        print(f"  Output: {output_path}")
         
         return output_path
 
