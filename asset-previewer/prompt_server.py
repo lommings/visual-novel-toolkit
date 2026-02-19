@@ -52,6 +52,7 @@ class PromptEditorHandler(SimpleHTTPRequestHandler):
             self.handle_load_session()
         else:
             # 靜態檔案 - 從 preview_dir 提供
+            print(f"[DEBUG] preview_dir type: {type(self.preview_dir)}, value: {self.preview_dir}")
             file_path = self.preview_dir / parsed.path.lstrip('/')
             print(f"[DEBUG] Serving file: {file_path}")
             
@@ -431,6 +432,7 @@ class PromptEditorHandler(SimpleHTTPRequestHandler):
             scenes_count = 0
             
             # 匯出角色
+            expressions_count = 0
             for char_id, char_data in data.get('characters', {}).items():
                 src_path = self.preview_dir / char_data['selected_image']
                 if src_path.exists():
@@ -440,12 +442,26 @@ class PromptEditorHandler(SimpleHTTPRequestHandler):
                     dst_path = char_dir / 'base.png'
                     shutil.copy2(src_path, dst_path)
                     
+                    # 匯出所有表情
+                    exported_expressions = {}
+                    expressions = char_data.get('expressions', {})
+                    if expressions:
+                        for expr_name, expr_path in expressions.items():
+                            expr_src = self.preview_dir / expr_path
+                            if expr_src.exists():
+                                expr_dst = char_dir / f'{expr_name}.png'
+                                shutil.copy2(expr_src, expr_dst)
+                                exported_expressions[expr_name] = f'{expr_name}.png'
+                                expressions_count += 1
+                                print(f"[DEBUG] 匯出表情: {char_id}/{expr_name}.png")
+                    
                     # 儲存角色資訊
                     info = {
                         'id': char_id,
                         'prompt': char_data.get('prompt', ''),
                         'style': char_data.get('style', 'anime'),
-                        'source_image': char_data['selected_image']
+                        'source_image': char_data['selected_image'],
+                        'expressions': exported_expressions
                     }
                     save_json(info, char_dir / 'info.json')
                     chars_count += 1
@@ -484,7 +500,8 @@ class PromptEditorHandler(SimpleHTTPRequestHandler):
                 'success': True,
                 'output_dir': str(output_dir),
                 'characters_count': chars_count,
-                'scenes_count': scenes_count
+                'scenes_count': scenes_count,
+                'expressions_count': expressions_count
             })
             
         except Exception as e:
@@ -651,16 +668,14 @@ def main():
     else:
         output_dir = input_path.parent
     
-    preview_dir = output_dir / 'preview'
+    preview_dir = (output_dir / 'preview').resolve()  # 使用絕對路徑
     ensure_dir(preview_dir)
     
     # 初始化生成器
     generator = PreviewGenerator(config)
     visual_gen = VisualPromptGenerator(config)
     
-    # 切換工作目錄
-    import os
-    os.chdir(preview_dir)
+    print(f"   預覽目錄: {preview_dir}")
     
     # 建立伺服器
     handler = create_handler(preview_dir, assets_data, config, generator, visual_gen)

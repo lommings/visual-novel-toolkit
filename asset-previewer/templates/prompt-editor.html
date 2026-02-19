@@ -362,6 +362,7 @@
             <button class="btn btn-secondary" onclick="savePrompts()">💾 儲存</button>
             <button class="btn btn-primary" onclick="generateAll()">🎨 全部生成預覽圖</button>
             <button class="btn btn-primary" onclick="openPreviewSelector()">📋 選擇預覽圖</button>
+            <button class="btn" onclick="exportAssets()" style="background: #10b981;">📁 匯出素材</button>
         </div>
     </div>
     
@@ -683,6 +684,11 @@
                             showExpressionButton(charId, data.selected);
                         }
                         
+                        // 恢復已生成的表情預覽
+                        if (data.expressions && Object.keys(data.expressions).length > 0) {
+                            restoreExpressionPreviews(charId, data.expressions);
+                        }
+                        
                         // 更新狀態
                         const statusEl = document.getElementById(`char-status-${charId}`);
                         if (statusEl) statusEl.innerHTML = '<span class="status status-done">✓ 已載入</span>';
@@ -978,6 +984,52 @@
             autoSave();
         }
         
+        // 恢復已生成的表情預覽
+        function restoreExpressionPreviews(charId, expressions) {
+            const container = document.getElementById(`char-${charId}`);
+            if (!container) return;
+            
+            const expressionNames = {
+                'normal': '😐 普通',
+                'happy': '😊 開心',
+                'sad': '😢 難過',
+                'angry': '😠 生氣',
+                'surprised': '😲 驚訝'
+            };
+            
+            const timestamp = Date.now();
+            
+            let exprPreviewEl = document.getElementById(`expr-preview-${charId}`);
+            if (!exprPreviewEl) {
+                exprPreviewEl = document.createElement('div');
+                exprPreviewEl.id = `expr-preview-${charId}`;
+                exprPreviewEl.className = 'expression-preview';
+                exprPreviewEl.style.cssText = 'margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px;';
+                container.appendChild(exprPreviewEl);
+            }
+            
+            exprPreviewEl.innerHTML = `
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: bold;">🎭 SD 表情預覽</span>
+                    <button class="btn btn-small" onclick="clearExpressions('${charId}')" 
+                            style="padding: 4px 10px; font-size: 12px; background: #c44;">
+                        🗑️ 清除重生
+                    </button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
+                    ${Object.entries(expressions).map(([expr, path]) => `
+                        <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 5px; text-align: center;">
+                            <img src="${path}?t=${timestamp}" alt="${expr}" 
+                                 style="width: 100%; height: auto; max-height: 150px; object-fit: contain; border-radius: 4px;">
+                            <div style="font-size: 12px; margin-top: 5px; color: #aaa;">${expressionNames[expr] || expr}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            console.log(`[恢復表情] ${charId}: ${Object.keys(expressions).length} 個表情`);
+        }
+        
         function clearExpressions(charId) {
             // 清除表情預覽，可以重新生成
             const exprPreviewEl = document.getElementById(`expr-preview-${charId}`);
@@ -1235,7 +1287,8 @@
                     selections.characters[charId] = {
                         selected_image: data.selected,
                         prompt: data.selected_prompt || data.prompt,
-                        style: data.style
+                        style: data.style,
+                        expressions: data.expressions || {}  // 包含所有表情
                     };
                 }
             }
@@ -1262,10 +1315,16 @@
             // 顯示選擇摘要
             const charCount = Object.keys(selections.characters).length;
             const sceneCount = Object.keys(selections.scenes).length;
+            // 計算表情數量
+            let exprCount = 0;
+            for (const charData of Object.values(selections.characters)) {
+                exprCount += Object.keys(charData.expressions || {}).length;
+            }
             
             const confirmed = confirm(
                 `即將匯出以下素材：\n\n` +
                 `✅ 角色: ${charCount} 個\n` +
+                `✅ 表情: ${exprCount} 個\n` +
                 `✅ 場景: ${sceneCount} 個\n\n` +
                 `確定要匯出嗎？`
             );
@@ -1287,6 +1346,7 @@
                         `輸出目錄: ${result.output_dir}\n\n` +
                         `已匯出:\n` +
                         `- ${result.characters_count} 個角色\n` +
+                        `- ${result.expressions_count || 0} 個表情\n` +
                         `- ${result.scenes_count} 個場景`
                     );
                 } else {

@@ -1,5 +1,26 @@
 # Changelog
 
+## [2026-02-20] - 表情匯出與 Session 恢復
+
+### 新功能
+
+#### 表情匯出
+- 匯出素材時自動包含所有已生成的表情圖片
+- 每個角色資料夾會包含：`base.png` + 5 種表情 (`normal.png`, `happy.png`, `sad.png`, `angry.png`, `surprised.png`)
+- 匯出確認對話框顯示表情數量
+- `info.json` 記錄表情檔案對應
+
+#### Session 恢復改進
+- 新增 `restoreExpressionPreviews()` 函數
+- 載入 session 時自動恢復已生成的表情預覽
+- 表情預覽包含「清除重生」按鈕
+
+### 修復
+- 修正匯出只有 `base.png` 沒有表情的問題
+- 修正 session.json UTF-8 BOM 導致 Python 無法解析的問題
+
+---
+
 ## [2026-02-20] - SD 表情生成功能
 
 ### 新增功能
