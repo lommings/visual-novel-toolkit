@@ -52,7 +52,6 @@ class PromptEditorHandler(SimpleHTTPRequestHandler):
             self.handle_load_session()
         else:
             # 靜態檔案 - 從 preview_dir 提供
-            print(f"[DEBUG] preview_dir type: {type(self.preview_dir)}, value: {self.preview_dir}")
             file_path = self.preview_dir / parsed.path.lstrip('/')
             print(f"[DEBUG] Serving file: {file_path}")
             
