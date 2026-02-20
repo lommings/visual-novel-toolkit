@@ -364,28 +364,17 @@ body {
     height: 100vh;
 }
 
-/* 調整角色立繪大小和位置 - 角色在對話框之上 */
+/* 角色立繪大小和位置 */
 [data-character] {
-    max-height: 85vh !important;
-    max-width: 40vw !important;
-    bottom: 5vh !important;  /* 角色底部接近螢幕底部，緊貼對話框 */
+    max-height: 113vh !important;
+    max-width: 53vw !important;
+    bottom: 5vh !important;
     object-fit: contain !important;
-    z-index: 100 !important;  /* 確保角色在對話框之上 */
+    z-index: 100 !important;
+    pointer-events: none !important;
 }
 
-/* 對話框層級 - 低於角色 */
-text-box,
-[data-component="text-box"] {
-    z-index: 50 !important;
-    position: relative !important;
-}
-
-/* 確保角色不會被裁切 */
-game-screen {
-    overflow: visible !important;
-}
-
-/* 角色立繪位置微調 */
+/* 角色位置 */
 [data-character][data-position="left"] {
     left: 5% !important;
 }
@@ -399,7 +388,7 @@ game-screen {
     transform: translateX(-50%) !important;
 }
 
-/* 對話框背景半透明 */
+/* 對話框背景 */
 [data-component="text-box"] {
     background: rgba(0, 0, 0, 0.85) !important;
 }
@@ -437,6 +426,16 @@ def build_from_twee(
     assets_data: Optional[Dict] = None
 ):
     """從 Twee 檔案建構遊戲"""
+    
+    # 自動從 assets_data 建立角色對應表
+    if char_mapping is None and assets_data:
+        char_mapping = {}
+        for char in assets_data.get('characters', []):
+            char_name = char.get('name', '')
+            char_id = char.get('id', '')
+            if char_name and char_id:
+                char_mapping[char_name] = char_id
+        print(f"  Auto-generated character mapping: {char_mapping}")
     
     twee_content = twee_path.read_text(encoding='utf-8')
     
