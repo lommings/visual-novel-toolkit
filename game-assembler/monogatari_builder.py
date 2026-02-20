@@ -368,7 +368,7 @@ body {
 [data-character] {
     max-height: 170vh !important;
     max-width: 80vw !important;
-    bottom: 5vh !important;
+    bottom: 22vh !important;
     object-fit: contain !important;
     z-index: 50 !important;
     pointer-events: none !important;
