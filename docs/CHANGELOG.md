@@ -1,5 +1,21 @@
 # Changelog
 
+## [2026-02-20] - 程式碼清理與改進
+
+### 改進
+- `convert_full_story.py` 現在支援命令列參數，不再使用寫死路徑
+  - `--project` 指定專案目錄（自動尋找檔案）
+  - `--twee`, `--scene-mapping`, `--output` 指定個別檔案
+- 新增錯誤處理：場景對應檔案不存在時顯示清楚錯誤訊息
+
+### 移除
+- 移除 `fix_script.py`, `fix_script2.py`, `fix_script3.py`（功能已整合到 `shared/script_processor.py`）
+
+### 文件
+- 更新 `04-GAME-ASSEMBLER.md` 常見問題排解章節
+
+---
+
 ## [2026-02-20] - 表情匯出與 Session 恢復
 
 ### 新功能

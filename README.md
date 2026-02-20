@@ -80,7 +80,14 @@ python asset-previewer/main.py output/小說/assets-needed.json --preview
 python asset-previewer/main.py output/小說/assets-needed.json --apply selections.json
 
 # 6. 組裝遊戲
-python game-assembler/main.py output/小說/processed.json
+python game-assembler/monogatari_builder.py \
+    --twee output/小說/story.twee \
+    --assets output/小說/assets \
+    --scene-mapping output/小說/scene-mapping.json \
+    -o output/小說/monogatari-game
+
+# 或使用智慧轉換腳本（自動處理角色顯示和場景切換）
+python convert_full_story.py --project output/小說
 
 # 7. 遊玩
 cd output/小說/game

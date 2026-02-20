@@ -5,10 +5,15 @@
 - 場景在文字提到地點時切換
 - 角色在文字提到後才出現
 - 根據情緒關鍵字選擇表情
+
+用法:
+    python convert_full_story.py --project output/專案名
+    python convert_full_story.py --twee story.twee --scene-mapping scene-mapping.json --output js/script.js
 """
 
 import re
 import json
+import argparse
 from pathlib import Path
 
 CHAR_MAPPING = {'和也': 'kazuya', '相葉': 'aiba'}
@@ -35,8 +40,8 @@ SCENE_KEYWORDS = {
     'final_dark_alley': ['追兵已經逼近'],
 }
 
-with open('C:/Users/lommi/Projects/visual-novel-toolkit/output/1140119_Temp/game/scene-mapping.json', 'r', encoding='utf-8') as f:
-    SCENE_MAPPING = json.load(f)
+# 全域變數，由 main() 設定
+SCENE_MAPPING = {}
 
 def detect_scene_from_text(text, current_scene):
     """從文字中偵測場景變化"""
@@ -354,13 +359,76 @@ monogatari.script({
     out += ',\n\n'.join(pstrs) + '\n});\n'
     return out
 
-# Main
-print("Converting story with scene detection...")
-passages = parse_twee('C:/Users/lommi/Projects/visual-novel-toolkit/output/1140119_Temp/story.twee')
-print(f"Found {len(passages)} passages")
+def load_scene_mapping(path: Path) -> dict:
+    """載入場景對應表"""
+    global SCENE_MAPPING
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            SCENE_MAPPING = json.load(f)
+        return SCENE_MAPPING
+    except FileNotFoundError:
+        print(f"[Error] Scene mapping not found: {path}")
+        print("Please provide --scene-mapping or ensure the file exists.")
+        exit(1)
+    except json.JSONDecodeError as e:
+        print(f"[Error] Invalid JSON in {path}: {e}")
+        exit(1)
 
-js = generate_js(passages)
-output_path = Path('C:/Users/lommi/Projects/visual-novel-toolkit/output/1140119_Temp/monogatari-game/js/script.js')
-output_path.write_text(js, encoding='utf-8')
-print(f"Written to {output_path}")
-print("Done!")
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='智慧轉換 Twee 到 Monogatari script.js',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='''
+範例:
+  # 使用專案目錄（自動找檔案）
+  python convert_full_story.py --project output/1140119_Temp
+
+  # 指定個別檔案
+  python convert_full_story.py --twee story.twee --scene-mapping scene-mapping.json --output script.js
+        '''
+    )
+    parser.add_argument('--project', '-p', help='專案目錄路徑（會自動尋找 story.twee 等檔案）')
+    parser.add_argument('--twee', help='Twee 檔案路徑')
+    parser.add_argument('--scene-mapping', help='場景對應 JSON 路徑')
+    parser.add_argument('--output', '-o', help='輸出 script.js 路徑')
+    
+    args = parser.parse_args()
+    
+    # 決定檔案路徑
+    if args.project:
+        project_dir = Path(args.project)
+        twee_path = project_dir / 'story.twee'
+        scene_mapping_path = project_dir / 'game' / 'scene-mapping.json'
+        output_path = project_dir / 'monogatari-game' / 'js' / 'script.js'
+    else:
+        if not args.twee or not args.scene_mapping or not args.output:
+            parser.error("請提供 --project 或同時提供 --twee, --scene-mapping, --output")
+        twee_path = Path(args.twee)
+        scene_mapping_path = Path(args.scene_mapping)
+        output_path = Path(args.output)
+    
+    # 檢查檔案存在
+    if not twee_path.exists():
+        print(f"[Error] Twee file not found: {twee_path}")
+        exit(1)
+    
+    # 載入場景對應
+    load_scene_mapping(scene_mapping_path)
+    
+    # 轉換
+    print("Converting story with scene detection...")
+    passages = parse_twee(twee_path)
+    print(f"Found {len(passages)} passages")
+    
+    js = generate_js(passages)
+    
+    # 確保輸出目錄存在
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(js, encoding='utf-8')
+    print(f"Written to {output_path}")
+    print("Done!")
+
+
+if __name__ == '__main__':
+    main()
