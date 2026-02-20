@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from shared.image_generator import ImageGenerator
 from shared.expression_generator import ExpressionGenerator
+from shared.sd_expression_generator import SDExpressionGenerator
 from shared.file_utils import ensure_dir
 
 
@@ -20,7 +21,15 @@ class PreviewGenerator:
     def __init__(self, config: dict):
         self.config = config
         self.image_gen = ImageGenerator(config)
-        self.expr_gen = ExpressionGenerator(config)
+        
+        # 根據設定選擇表情生成器
+        expr_provider = config.get('image_generation', {}).get('expression_provider', 'stable_diffusion')
+        if expr_provider == 'stable_diffusion':
+            self.expr_gen = SDExpressionGenerator(config)
+            print("[PreviewGenerator] Using SD for expressions (FREE)")
+        else:
+            self.expr_gen = ExpressionGenerator(config)
+            print("[PreviewGenerator] Using Gemini for expressions (PAID)")
         
         previewer_config = config.get('asset_previewer', {})
         self.char_concepts_count = previewer_config.get('character_concepts_count', 4)
@@ -235,15 +244,26 @@ class PreviewGenerator:
         # 取得角色描述（用於保持一致性）
         char_prompt = character.get('visual_description', '') or character.get('visual_prompt', '') or ''
         
-        # 使用 ExpressionGenerator 保持角色一致性
-        results = self.expr_gen.generate_all_expressions(
-            reference_path=reference_path,
-            expressions=expressions,
-            output_dir=str(output_dir),
-            character_id=char_id,
-            character_prompt=char_prompt,
-            callback=callback
-        )
+        # 根據使用的生成器類型呼叫
+        if isinstance(self.expr_gen, SDExpressionGenerator):
+            # SD 使用 base_prompt 參數
+            results = self.expr_gen.generate_all_expressions(
+                reference_path=reference_path,
+                expressions=expressions,
+                output_dir=str(output_dir),
+                base_prompt=char_prompt,
+                callback=callback
+            )
+        else:
+            # Gemini 使用 character_prompt 參數
+            results = self.expr_gen.generate_all_expressions(
+                reference_path=reference_path,
+                expressions=expressions,
+                output_dir=str(output_dir),
+                character_id=char_id,
+                character_prompt=char_prompt,
+                callback=callback
+            )
         
         return results
     
