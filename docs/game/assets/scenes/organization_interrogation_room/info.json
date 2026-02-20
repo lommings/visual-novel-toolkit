@@ -1,0 +1,8 @@
+{
+  "id": "organization_interrogation_room",
+  "prompt": "Cinematic interior shot of a brutalist underground interrogation room. The walls are made of cold, stained concrete with visible cracks and damp patches. A single, harsh industrial spotlight hangs from the high ceiling, casting a sharp cone of light onto a solitary, bolted-down metal chair in the center. The rest of the room is swallowed by deep, oppressive shadows. On the walls, rows of menacing metallic tools, rusted hooks, and surgical instruments glint under the dim light. Exposed copper pipes run along the ceiling with condensation dripping. The floor is scratched and features a central iron drain. High contrast, gritty texture, hyper-realistic, 8k resolution, desaturated colors, noir atmosphere, no people.",
+  "model": "stable_diffusion",
+  "sd_model": "counterfeitV30_v30.safetensors",
+  "style": "cyberpunk",
+  "source_image": "scenes/organization_interrogation_room/concept_3.png"
+}

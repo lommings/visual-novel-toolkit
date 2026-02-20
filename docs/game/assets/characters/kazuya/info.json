@@ -1,0 +1,13 @@
+{
+  "id": "kazuya",
+  "prompt": "A professional character concept art of a 20-year-old young man named Kazuya. He has jet black messy layered hair and sharp, hollow obsidian eyes with a melancholic expression. His skin is pale and porcelain-like. He has a lean, wiry, athletic physique. He is dressed in stealthy urban tech-wear, featuring a high-collared dark charcoal vest, black tactical under-suit, and functional straps. Distinctive special feature: faint, glowing translucent violet veins creeping from his collarbone up his neck. The overall atmosphere is cold, mysterious, and tragic. Cinematic lighting, moody shadows, hyper-detailed 少年破碎感",
+  "style": "semi_realistic",
+  "source_image": "characters/kazuya/concept_3.png",
+  "expressions": {
+    "normal": "normal.png",
+    "happy": "happy.png",
+    "sad": "sad.png",
+    "angry": "angry.png",
+    "surprised": "surprised.png"
+  }
+}
