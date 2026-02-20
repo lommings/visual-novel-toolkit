@@ -1,5 +1,42 @@
 # Changelog
 
+## [2026-02-20] - Context Caching 支援
+
+### 新增功能
+
+#### Gemini Context Caching
+- 新增 Context Caching 支援，可大幅降低重複 API 請求的成本
+- 快取輸入成本降低 75%（$0.075 → $0.01875 / 1M tokens）
+- 預設 System Prompts 自動快取：
+  - `story_analyzer` - 故事分析
+  - `scene_detector` - 場景偵測
+  - `character_analyzer` - 角色分析
+  - `dialogue_parser` - 對話解析
+
+#### 快取管理工具
+新增 `manage_cache.py`：
+```bash
+python manage_cache.py list    # 列出所有快取
+python manage_cache.py clear   # 清除所有快取
+python manage_cache.py init    # 初始化預設快取
+python manage_cache.py status  # 顯示狀態和成本估算
+```
+
+### 設定
+`config.json` 新增快取設定：
+```json
+{
+  "ai": {
+    "cache": {
+      "enabled": true,
+      "ttl_minutes": 60
+    }
+  }
+}
+```
+
+---
+
 ## [2026-02-20] - 程式碼清理與改進
 
 ### 改進
