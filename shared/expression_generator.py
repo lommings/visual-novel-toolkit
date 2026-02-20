@@ -131,53 +131,33 @@ Output a new image of this same character with the new expression."""
     def _fallback_generate(self, reference_path: str, expression: str, 
                           output_path: str, expr_desc: str,
                           character_prompt: str = "") -> bool:
-        """備用方案：使用完整角色描述 + 表情重新生成"""
+        """備用方案：使用 Stable Diffusion img2img（免費）"""
         try:
-            from google import genai
-            from google.genai import types
+            # 優先使用 SD（免費）
+            from .sd_expression_generator import SDExpressionGenerator
             
-            client = genai.Client(api_key=self.api_key)
+            sd_gen = SDExpressionGenerator(self.config)
             
-            # 使用完整角色描述（如果有的話）
-            if character_prompt:
-                # 在原有描述中替換/添加表情
-                prompt = character_prompt.replace('neutral expression', expr_desc)
-                prompt = prompt.replace('normal expression', expr_desc)
-                # 確保有表情描述
-                if expr_desc not in prompt:
-                    prompt = f"{prompt}, {expr_desc}"
-            else:
-                prompt = f"""Anime character portrait with {expr_desc}.
-Same style as visual novel game character sprite.
-Upper body, transparent background, high quality."""
-            
-            print(f"   [FALLBACK] Generating with prompt: {prompt[:80]}...")
-            
-            response = client.models.generate_images(
-                model="imagen-4.0-generate-001",
-                prompt=prompt,
-                config=types.GenerateImagesConfig(
-                    number_of_images=1,
-                    output_mime_type="image/png",
-                    safety_filter_level="BLOCK_LOW_AND_ABOVE",
-                    person_generation="ALLOW_ADULT"
+            if sd_gen.test_connection():
+                print(f"   [FALLBACK] Using Stable Diffusion img2img (FREE)")
+                success = sd_gen.generate_expression(
+                    reference_path=reference_path,
+                    target_expression=expression,
+                    output_path=output_path,
+                    base_prompt=character_prompt
                 )
-            )
-            
-            if response.generated_images:
-                output_path = Path(output_path)
-                output_path.parent.mkdir(parents=True, exist_ok=True)
+                if success:
+                    print(f"   [FALLBACK OK] Generated {expression} with SD")
+                    return True
+            else:
+                print(f"   [FALLBACK] SD not available, trying copy")
                 
-                image = response.generated_images[0].image
-                image.save(output_path)
-                
-                print(f"   [FALLBACK OK] Generated {expression} with Imagen 4")
-                return True
-                
+        except ImportError:
+            print(f"   [FALLBACK] SD module not found")
         except Exception as e:
             print(f"   [FALLBACK ERROR]: {e}")
         
-        # 最後手段：複製原圖
+        # 最後手段：複製原圖（免費，保持一致性）
         try:
             import shutil
             shutil.copy(reference_path, output_path)
