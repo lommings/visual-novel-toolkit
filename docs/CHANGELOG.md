@@ -1,5 +1,32 @@
 # Changelog
 
+## [2026-02-20] - 修正圖片生成模型配置
+
+### 修正
+- 角色立繪改用 `gemini-3-pro-image-preview`（原本誤用 Imagen 4）
+- 表情變化改用 Stable Diffusion img2img（原本誤用 Gemini）
+- 新增 `GeminiProImageProvider` 支援 Gemini 3 Pro Image Preview
+
+### 設定變更
+`config.json` 圖片生成設定：
+```json
+{
+  "image_generation": {
+    "character_provider": "gemini_pro_image",  // 角色用 Gemini 3 Pro
+    "scene_provider": "stable_diffusion",       // 場景用 SD
+    "expression_provider": "stable_diffusion"   // 表情用 SD img2img
+  }
+}
+```
+
+### 成本影響
+| 項目 | 原模型 | 新模型 | 成本變化 |
+|------|--------|--------|----------|
+| 角色立繪 | Imagen 4 ($0.04-0.08/張) | Gemini 3 Pro ($0.02-0.04/張) | ⬇️ 降低 |
+| 表情變化 | Gemini ($0.02-0.04/張) | SD (免費) | ⬇️ 免費 |
+
+---
+
 ## [2026-02-20] - Context Caching 支援
 
 ### 新增功能

@@ -143,23 +143,20 @@ class StableDiffusionProvider(ImageProvider):
 
 
 class GeminiImagenProvider(ImageProvider):
-    """Gemini Imagen API 提供者 - 使用新版 google.genai"""
+    """Gemini Imagen API 提供者（成本較高，備用）"""
     
-    def __init__(self, api_key: str, model: str = "imagen-3.0-generate-002"):
+    def __init__(self, api_key: str, model: str = "imagen-4.0-generate-001"):
         self.api_key = api_key
         self.model = model
     
     def generate(self, prompt: str, output_path: str, **kwargs) -> bool:
-        """
-        使用 Imagen 3 生成圖片
-        """
+        """使用 Imagen 生成圖片"""
         try:
             from google import genai
             from google.genai import types
             
             client = genai.Client(api_key=self.api_key)
             
-            # 使用 Imagen 4 生成圖片
             response = client.models.generate_images(
                 model=self.model,
                 prompt=prompt,
@@ -171,7 +168,6 @@ class GeminiImagenProvider(ImageProvider):
                 )
             )
             
-            # 儲存圖片
             if response.generated_images:
                 output_path = Path(output_path)
                 output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -179,7 +175,7 @@ class GeminiImagenProvider(ImageProvider):
                 image = response.generated_images[0].image
                 image.save(output_path)
                 
-                print(f"   [OK] Image saved to {output_path}")
+                print(f"   [OK] Imagen saved to {output_path}")
                 return True
             
             print(f"   [WARN] No image in response")
@@ -189,55 +185,107 @@ class GeminiImagenProvider(ImageProvider):
             print(f"Imagen 生圖失敗: {e}")
         
         return False
+
+
+class GeminiProImageProvider(ImageProvider):
+    """Gemini 3 Pro Image Preview - 支援圖片生成，成本較低"""
     
-    def generate_img2img(self, prompt: str, reference_path: str, output_path: str,
-                         **kwargs) -> bool:
-        """
-        使用參考圖生成（Gemini 圖片編輯）
-        
-        Args:
-            prompt: 編輯指令
-            reference_path: 參考圖路徑
-            output_path: 輸出路徑
-        
-        Returns:
-            是否成功
-        """
+    def __init__(self, api_key: str, model: str = "gemini-3-pro-image-preview"):
+        self.api_key = api_key
+        self.model = model
+    
+    def generate(self, prompt: str, output_path: str, **kwargs) -> bool:
+        """使用 Gemini 3 Pro Image Preview 生成圖片"""
         try:
-            import google.generativeai as genai
-            from PIL import Image
+            from google import genai
+            from google.genai import types
             
-            genai.configure(api_key=self.api_key)
+            client = genai.Client(api_key=self.api_key)
             
-            # 載入參考圖
-            ref_image = Image.open(reference_path)
+            # 使用 generate_content 並指定 IMAGE 輸出
+            response = client.models.generate_content(
+                model=self.model,
+                contents=types.Content(
+                    role="user",
+                    parts=[types.Part.from_text(f"Generate an image: {prompt}")]
+                ),
+                config=types.GenerateContentConfig(
+                    response_modalities=["IMAGE", "TEXT"]
+                )
+            )
             
-            # 使用支援圖片編輯的模型
-            model = genai.GenerativeModel('gemini-2.0-flash-exp')
-            
-            response = model.generate_content([
-                ref_image,
-                f"Edit this character image. Keep the character's appearance exactly the same (same face, hair, clothing), but change the expression to: {prompt}. Output only the edited image."
-            ])
-            
-            # 檢查是否有圖片回應
-            if response.candidates and response.candidates[0].content.parts:
+            # 從回應中提取圖片
+            if response.candidates:
                 for part in response.candidates[0].content.parts:
-                    if hasattr(part, 'inline_data') and part.inline_data:
+                    if part.inline_data and part.inline_data.mime_type.startswith('image/'):
                         image_data = part.inline_data.data
+                        
                         output_path = Path(output_path)
                         output_path.parent.mkdir(parents=True, exist_ok=True)
                         
                         with open(output_path, 'wb') as f:
                             f.write(image_data)
+                        
+                        print(f"   [OK] Gemini Pro Image saved to {output_path}")
                         return True
             
-            # 如果無法編輯，嘗試用原始生成但加入詳細描述
-            print("   [INFO] Gemini 無法編輯圖片，改用詳細 prompt 重新生成")
+            print(f"   [WARN] No image in Gemini Pro response")
+            return False
+                
+        except Exception as e:
+            print(f"Gemini Pro Image 生圖失敗: {e}")
+        
+        return False
+    
+    def generate_img2img(self, prompt: str, reference_path: str, output_path: str,
+                         **kwargs) -> bool:
+        """使用參考圖生成（圖片編輯）"""
+        try:
+            from google import genai
+            from google.genai import types
+            from PIL import Image
+            import io
+            
+            client = genai.Client(api_key=self.api_key)
+            
+            # 載入參考圖
+            ref_image = Image.open(reference_path)
+            img_byte_arr = io.BytesIO()
+            ref_image.save(img_byte_arr, format='PNG')
+            img_bytes = img_byte_arr.getvalue()
+            
+            response = client.models.generate_content(
+                model=self.model,
+                contents=types.Content(
+                    role="user",
+                    parts=[
+                        types.Part.from_image(types.Image(image_bytes=img_bytes)),
+                        types.Part.from_text(f"Edit this image: {prompt}")
+                    ]
+                ),
+                config=types.GenerateContentConfig(
+                    response_modalities=["IMAGE", "TEXT"]
+                )
+            )
+            
+            if response.candidates:
+                for part in response.candidates[0].content.parts:
+                    if part.inline_data and part.inline_data.mime_type.startswith('image/'):
+                        image_data = part.inline_data.data
+                        
+                        output_path = Path(output_path)
+                        output_path.parent.mkdir(parents=True, exist_ok=True)
+                        
+                        with open(output_path, 'wb') as f:
+                            f.write(image_data)
+                        
+                        return True
+            
+            print("   [INFO] 無法編輯圖片，改用生成")
             return self.generate(prompt, output_path, **kwargs)
                 
         except Exception as e:
-            print(f"Gemini img2img 生成失敗: {e}")
+            print(f"Gemini Pro img2img 失敗: {e}")
         
         return False
 
@@ -256,15 +304,21 @@ class ImageGenerator:
         img_config = config.get('image_generation', {})
         
         # 支援分離的 provider 設定
-        char_provider_name = img_config.get('character_provider', img_config.get('provider', 'gemini_imagen'))
-        scene_provider_name = img_config.get('scene_provider', img_config.get('provider', 'stable_diffusion'))
+        char_provider_name = img_config.get('character_provider', 'gemini_pro_image')
+        scene_provider_name = img_config.get('scene_provider', 'stable_diffusion')
+        expr_provider_name = img_config.get('expression_provider', 'stable_diffusion')
         
         # 建立 providers
         self.character_provider = self._create_provider(char_provider_name, img_config, config)
         self.scene_provider = self._create_provider(scene_provider_name, img_config, config)
+        self.expression_provider = self._create_provider(expr_provider_name, img_config, config)
         
         # 向後兼容：預設使用角色 provider
         self.provider = self.character_provider
+        
+        # 表情生成設定
+        sd_expr_config = img_config.get('stable_diffusion', {}).get('expression', {})
+        self.expression_denoising = sd_expr_config.get('denoising_strength', 0.35)
         
         # 視覺風格
         style_config = config.get('visual_style', {})
@@ -279,7 +333,16 @@ class ImageGenerator:
                 api_url=sd_config.get('api_url', 'http://localhost:7860'),
                 defaults=sd_config.get('defaults', {})
             )
+        elif provider_name == 'gemini_pro_image':
+            # Gemini 3 Pro Image Preview - 推薦用於角色生成
+            gemini_config = config.get('ai', {}).get('gemini', {})
+            pro_config = img_config.get('gemini_pro_image', {})
+            return GeminiProImageProvider(
+                api_key=gemini_config.get('api_key', ''),
+                model=pro_config.get('model', 'gemini-3-pro-image-preview')
+            )
         elif provider_name == 'gemini_imagen':
+            # Imagen - 成本較高，備用
             gemini_config = config.get('ai', {}).get('gemini', {})
             imagen_config = img_config.get('gemini_imagen', {})
             return GeminiImagenProvider(
