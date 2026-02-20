@@ -364,20 +364,26 @@ body {
     height: 100vh;
 }
 
-/* 角色立繪大小和位置 - 在對話框之上 */
+/* 角色立繪大小和位置 - 在對話框之下 */
 [data-character] {
     max-height: 170vh !important;
     max-width: 80vw !important;
     bottom: 5vh !important;
     object-fit: contain !important;
-    z-index: 9999 !important;
+    z-index: 50 !important;
     pointer-events: none !important;
 }
 
-/* 確保對話框在角色之下 */
+/* 對話框在角色之上 */
 [data-component="text-box"],
 text-box {
     z-index: 100 !important;
+}
+
+/* 選項按鈕在最上層 */
+[data-component="choice-container"],
+choice-container {
+    z-index: 200 !important;
 }
 
 /* 角色位置 */
