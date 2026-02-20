@@ -127,7 +127,7 @@ visual-novel-toolkit/
 
 ### AI 設定
 
-支援 Gemini 和 OpenAI：
+支援 Gemini（推薦）和 OpenAI：
 
 ```json
 {
@@ -135,7 +135,11 @@ visual-novel-toolkit/
     "provider": "gemini",
     "gemini": {
       "api_key": "...",
-      "model": "gemini-1.5-pro"
+      "model": "gemini-3-flash-preview"
+    },
+    "cache": {
+      "enabled": true,
+      "ttl_minutes": 60
     }
   }
 }
@@ -143,14 +147,19 @@ visual-novel-toolkit/
 
 ### 圖片生成
 
-支援 Stable Diffusion WebUI 和 Gemini Imagen：
+分離式設定，角色用 Gemini，場景/表情用 SD（免費）：
 
 ```json
 {
   "image_generation": {
-    "provider": "stable_diffusion",
+    "character_provider": "gemini_pro_image",
+    "scene_provider": "stable_diffusion",
+    "expression_provider": "stable_diffusion",
     "stable_diffusion": {
       "api_url": "http://localhost:7860"
+    },
+    "gemini_pro_image": {
+      "model": "gemini-3-pro-image-preview"
     }
   }
 }
@@ -165,6 +174,17 @@ visual-novel-toolkit/
   }
 }
 ```
+
+## 💰 成本估算
+
+| 項目 | 工具 | 成本 |
+|------|------|------|
+| 角色概念圖 (×4) | Gemini 3 Pro | ~$0.08/角色 |
+| 表情生成 (×5) | SD img2img | 免費 |
+| 場景背景 | SD | 免費 |
+| 文字分析 | Gemini 3 Flash + Cache | ~$0.02 |
+
+**單次遊戲製作：約 $0.10（2角色 + 10場景）**
 
 ## 📄 授權
 

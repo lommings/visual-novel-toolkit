@@ -1,29 +1,63 @@
 # Changelog
 
-## [2026-02-20] - 修正圖片生成模型配置
+## [2026-02-20] - API 成本優化與模型配置修正
 
-### 修正
-- 角色立繪改用 `gemini-3-pro-image-preview`（原本誤用 Imagen 4）
-- 表情變化改用 Stable Diffusion img2img（原本誤用 Gemini）
-- 新增 `GeminiProImageProvider` 支援 Gemini 3 Pro Image Preview
+### 🎯 模型配置統一
 
-### 設定變更
-`config.json` 圖片生成設定：
+**文字分析**
+- 統一使用 `gemini-3-flash-preview`
+- 更新檔案：`ai_client.py`, `manage_cache.py`, `config_manager.py`
+
+**圖片生成**
+- 角色概念圖：`gemini-3-pro-image-preview`
+- 場景背景：Stable Diffusion（免費）
+- 表情變化：Stable Diffusion img2img（免費）
+
+### 🔧 修正內容
+
+1. **表情生成流程修正**
+   - `preview_generator.py` 根據 `expression_provider` 設定選擇生成器
+   - 預設使用 `SDExpressionGenerator`（免費）
+   - Fallback 改用 SD 而非 Imagen 4
+
+2. **新增 `GeminiProImageProvider`**
+   - 支援 `gemini-3-pro-image-preview` 模型
+   - 用於角色概念圖生成
+
+### 💰 成本優化結果
+
+| 項目 | 優化前 | 優化後 | 節省 |
+|------|--------|--------|------|
+| 角色概念圖 (×4) | Imagen 4 ~$0.20 | Gemini 3 Pro ~$0.08 | 60% |
+| 表情生成 (×5) | Gemini ~$0.15 | SD 免費 | 100% |
+| 場景背景 (×3) | - | SD 免費 | - |
+| 文字分析 | Gemini 2.0 | Gemini 3 Flash | Context Cache 再省 75% |
+
+**單次遊戲製作預估成本：~$0.10（2角色 + 10場景）**
+
+### ⚙️ 最終設定 (config.json)
+
 ```json
 {
+  "ai": {
+    "gemini": {
+      "model": "gemini-3-flash-preview"
+    },
+    "cache": {
+      "enabled": true,
+      "ttl_minutes": 60
+    }
+  },
   "image_generation": {
-    "character_provider": "gemini_pro_image",  // 角色用 Gemini 3 Pro
-    "scene_provider": "stable_diffusion",       // 場景用 SD
-    "expression_provider": "stable_diffusion"   // 表情用 SD img2img
+    "character_provider": "gemini_pro_image",
+    "scene_provider": "stable_diffusion",
+    "expression_provider": "stable_diffusion",
+    "gemini_pro_image": {
+      "model": "gemini-3-pro-image-preview"
+    }
   }
 }
 ```
-
-### 成本影響
-| 項目 | 原模型 | 新模型 | 成本變化 |
-|------|--------|--------|----------|
-| 角色立繪 | Imagen 4 ($0.04-0.08/張) | Gemini 3 Pro ($0.02-0.04/張) | ⬇️ 降低 |
-| 表情變化 | Gemini ($0.02-0.04/張) | SD (免費) | ⬇️ 免費 |
 
 ---
 
