@@ -170,13 +170,14 @@ class BranchGenerator:
         # 更新引用
         name_map = {p.get('name', ''): p.get('name', '') for p in passages}
         for passage in passages:
-            if 'next' in passage:
+            if 'next' in passage and passage['next']:
                 old_next = passage['next']
                 passage['next'] = old_next.replace(' ', '_').replace('-', '_')
             if 'choices' in passage:
                 for choice in passage['choices']:
                     old_target = choice.get('target', '')
-                    choice['target'] = old_target.replace(' ', '_').replace('-', '_')
+                    if old_target:
+                        choice['target'] = old_target.replace(' ', '_').replace('-', '_')
         
         return passages
     
