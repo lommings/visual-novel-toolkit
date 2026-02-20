@@ -89,23 +89,42 @@ monogatari-game/
 `style/main.css` 中的重要設定：
 
 ```css
-/* 角色立繪位置 - 不與對話框重疊 */
+/* 角色立繪位置 - 緊貼對話框上方 */
 [data-character] {
-    max-height: 55vh !important;
-    bottom: 30vh !important;
+    max-height: 85vh !important;
+    max-width: 40vw !important;
+    bottom: 5vh !important;         /* 緊貼對話框 */
+    z-index: 100 !important;        /* 角色在對話框之上 */
 }
 
-/* 對話框固定高度 */
+/* 對話框層級 - 低於角色 */
+text-box,
 [data-component="text-box"] {
-    height: 28vh !important;
+    z-index: 50 !important;
     background: rgba(0, 0, 0, 0.85) !important;
 }
 
-/* 文字放大 */
-[data-component="text-box"] p {
-    font-size: 1.4rem !important;
+/* 角色位置 */
+[data-character][data-position="left"] { left: 5% !important; }
+[data-character][data-position="right"] { right: 5% !important; }
+[data-character][data-position="center"] { 
+    left: 50% !important; 
+    transform: translateX(-50%) !important; 
+}
+
+/* 主選單背景 */
+[data-screen="main"] {
+    background-image: url('../assets/main-menu-bg.png') !important;
+    background-size: cover !important;
 }
 ```
+
+### 調整角色與對話框距離
+
+修改 `bottom` 值：
+- `bottom: 0` - 角色腳底貼齊螢幕底部
+- `bottom: 5vh` - 角色緊貼對話框上方（推薦）
+- `bottom: 20vh` - 角色距離對話框較遠
 
 ## 待改進項目
 

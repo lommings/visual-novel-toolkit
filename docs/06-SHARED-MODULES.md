@@ -308,6 +308,86 @@ from vn_toolkit_shared.ai_client import AIClient
 
 ---
 
+## 📜 script_processor.py
+
+腳本處理器，自動處理角色顯示、位置、對話等。
+
+### 功能
+
+- 偵測對話行（`角色名：對話內容`）
+- 偵測文字中提到的角色
+- 自動加入 `show character` 指令
+- 自動決定角色位置（left/right/center）
+- 結局標註
+
+### 角色名稱對應表
+
+```python
+char_name_mapping = {
+    '和也': 'kazuya',
+    '相葉': 'aiba'
+}
+```
+
+### 對話偵測
+
+程式會自動偵測以下格式：
+```
+相葉：你還好嗎？
+```
+↓ 自動轉換為
+```javascript
+'show character aiba normal at center with fadeIn',
+'aiba 你還好嗎？'
+```
+
+### 角色位置決定
+
+```python
+def get_position(shown_chars, new_char):
+    if len(shown_chars) == 0:
+        return 'center'     # 第一個角色置中
+    elif len(shown_chars) == 1:
+        return 'right'      # 第二個角色在右
+    else:
+        return 'center'     # 更多角色置中
+```
+
+### 結局標註
+
+段落名稱以 `Ending_` 開頭會自動加上結局標題：
+
+```python
+def _get_ending_title(self, passage_name: str) -> str:
+    ending_titles = {
+        'Ending_BreakChains': '破鏈重生',
+        'Ending_LostShadow': '消失的幽影',
+        'Ending_SilentEnd': '無聲的終結',
+    }
+    return ending_titles.get(passage_name, passage_name)
+```
+
+輸出：
+```javascript
+'centered ── 結局：破鏈重生 ──',
+'end'
+```
+
+### 使用範例
+
+```python
+from shared.script_processor import create_processor
+
+processor = create_processor({
+    '和也': 'kazuya',
+    '相葉': 'aiba'
+})
+
+processed = processor.process_script(passages, scene_mapping)
+```
+
+---
+
 ## ✅ 設計原則
 
 | 原則 | 說明 |
