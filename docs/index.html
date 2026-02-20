@@ -2,45 +2,140 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
-    <title>噬心毒戀</title>
-    
-    <!-- Monogatari CSS -->
-    <link rel="stylesheet" href="./engine/core/monogatari.css">
-    <link rel="stylesheet" href="./style/main.css">
-    
-    <!-- Monogatari JS -->
-    <script src="./engine/core/monogatari.js"></script>
-    <script src="./js/options.js"></script>
-    <script src="./js/storage.js"></script>
-    <script src="./js/script.js"></script>
-    <script src="./js/main.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Novel Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #e94560, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 50px;
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(233, 69, 96, 0.3);
+        }
+        .game-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .game-cover {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(45deg, #e94560, #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+        }
+        .game-info {
+            padding: 20px;
+        }
+        .game-title {
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+        .game-desc {
+            color: #aaa;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        .play-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 25px;
+            background: linear-gradient(90deg, #e94560, #ff6b6b);
+            border-radius: 25px;
+            font-weight: bold;
+            transition: opacity 0.3s;
+        }
+        .play-btn:hover {
+            opacity: 0.8;
+        }
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 20px;
+            color: #666;
+        }
+        footer a {
+            color: #e94560;
+        }
+    </style>
 </head>
 <body>
-    <noscript>
-        <div class="middle text--center">
-            <h2>需要啟用 JavaScript</h2>
-            <small>請啟用 JavaScript 或使用其他瀏覽器來遊玩此遊戲。</small>
+    <div class="container">
+        <h1>🎮 Visual Novel Collection</h1>
+        <p class="subtitle">視覺小說遊戲集</p>
+        
+        <div class="games-grid">
+            <!-- 噬心毒戀 -->
+            <div class="game-card">
+                <a href="./games/噬心毒戀/">
+                    <div class="game-cover">💀💕</div>
+                    <div class="game-info">
+                        <h2 class="game-title">噬心毒戀</h2>
+                        <p class="game-desc">在黑暗的城市底下，有一個名為「幽影」的秘密組織。和也，這個組織中的頂尖殺手，體內被植入了致命的毒素...</p>
+                        <span class="play-btn">開始遊玩 →</span>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- 新遊戲模板（之後新增時複製這塊）
+            <div class="game-card">
+                <a href="./games/遊戲名稱/">
+                    <div class="game-cover">🎮</div>
+                    <div class="game-info">
+                        <h2 class="game-title">遊戲名稱</h2>
+                        <p class="game-desc">遊戲簡介...</p>
+                        <span class="play-btn">開始遊玩 →</span>
+                    </div>
+                </a>
+            </div>
+            -->
         </div>
-    </noscript>
-
-    <div id="monogatari">
-        <visual-novel>
-            <loading-screen></loading-screen>
-            <main-screen>
-                <main-menu></main-menu>
-            </main-screen>
-            <game-screen>
-                <dialog-log></dialog-log>
-                <text-box></text-box>
-                <quick-menu></quick-menu>
-            </game-screen>
-            <gallery-screen></gallery-screen>
-            <load-screen></load-screen>
-            <save-screen></save-screen>
-            <settings-screen></settings-screen>
-            <help-screen></help-screen>
-        </visual-novel>
     </div>
+    
+    <footer>
+        Made with <a href="https://github.com/lommings/visual-novel-toolkit">Visual Novel Toolkit</a>
+    </footer>
 </body>
 </html>
