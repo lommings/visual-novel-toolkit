@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 智慧轉換 Twee 到 Monogatari
+- 場景在文字提到地點時切換
 - 角色在文字提到後才出現
 - 根據情緒關鍵字選擇表情
 """
@@ -13,16 +14,38 @@ from pathlib import Path
 CHAR_MAPPING = {'和也': 'kazuya', '相葉': 'aiba'}
 
 EMOTION_KEYWORDS = {
-    'happy': ['笑', '開心', '高興', '喜', '微笑', '溫暖', '感激', '欣慰'],
-    'sad': ['難過', '悲傷', '哭', '淚', '痛苦', '絕望', '憂', '沮喪', '低落'],
+    'happy': ['笑', '開心', '高興', '喜', '微笑', '溫暖', '感激', '欣慰', '幸福'],
+    'sad': ['難過', '悲傷', '哭', '淚', '痛苦', '絕望', '憂', '沮喪', '低落', '心酸', '無力'],
     'angry': ['怒', '氣', '憤', '惱', '不滿', '冷'],
     'surprised': ['驚', '震', '嚇', '意外', '沒想到', '愕'],
 }
 
 SPEAKING_VERBS = ['說', '道', '問', '答', '喊', '叫', '回答', '詢問', '提醒', '告訴', '低聲', '輕聲', '大聲', '回', '應']
 
+# 場景關鍵字對應（更精準的匹配，避免誤判）
+SCENE_KEYWORDS = {
+    'aiba_apartment_interior': ['到家後', '躺到沙發上'],
+    'secluded_alleyway': [],  # 不自動切換到小巷
+    'organization_interrogation_room': ['帶到了審訊室'],
+    'cold_prison_cell': ['拖回自己的牢房'],
+    'busy_commercial_district': ['商業區的人群'],
+    'private_hospital_ward': ['將和也安置入院'],
+    'secret_medical_lab': ['秘密實驗室中'],
+    'rainy_street_lamp': ['天空下著小雨'],
+    'final_dark_alley': ['追兵已經逼近'],
+}
+
 with open('C:/Users/lommi/Projects/visual-novel-toolkit/output/1140119_Temp/game/scene-mapping.json', 'r', encoding='utf-8') as f:
     SCENE_MAPPING = json.load(f)
+
+def detect_scene_from_text(text, current_scene):
+    """從文字中偵測場景變化"""
+    for scene, keywords in SCENE_KEYWORDS.items():
+        for kw in keywords:
+            if kw in text:
+                if scene != current_scene:
+                    return scene
+    return None
 
 def detect_chars(text):
     """偵測文字中的角色"""
@@ -51,15 +74,12 @@ def split_text(text, max_len=50):
     """分割文字，每段約兩行，不以逗號結尾"""
     if not text.strip():
         return []
-    
     text = text.strip()
     if len(text) <= max_len:
         return [text]
     
-    # 用句號分割
     parts = re.split(r'([。！？])', text)
     sentences = []
-    
     i = 0
     while i < len(parts):
         s = parts[i]
@@ -73,7 +93,6 @@ def split_text(text, max_len=50):
     
     result = []
     current = ''
-    
     for s in sentences:
         if len(current) + len(s) <= max_len:
             current += s
@@ -83,12 +102,10 @@ def split_text(text, max_len=50):
                     current = current[:-1]
                 result.append(current)
             current = s
-    
     if current:
         if current.endswith('，'):
             current = current[:-1]
         result.append(current)
-    
     return result if result else [text]
 
 def parse_twee(path):
@@ -106,43 +123,96 @@ def parse_twee(path):
 def convert_passage(name, body):
     result = []
     shown = {}
+    current_scene = None
+    pending_scene = None  # 待切換的場景
     
-    def show_char(cid, emotion='normal'):
-        """顯示角色（在文字後）"""
-        if cid in shown and shown[cid] == emotion:
+    char_positions = {}  # 記錄角色當前位置
+    pending_chars = []   # 收集同一段落要顯示的角色
+    
+    def queue_char(cid, emotion='normal'):
+        """將角色加入待顯示列表"""
+        pending_chars.append((cid, emotion))
+    
+    def flush_chars():
+        """一次性處理所有待顯示的角色"""
+        nonlocal char_positions
+        if not pending_chars:
             return
         
-        # 計算位置
-        if cid not in shown:
-            if len(shown) == 0:
-                pos = 'center'
-            elif len(shown) == 1:
-                # 移動第一個角色到左邊
-                other = list(shown.keys())[0]
-                other_emotion = shown[other]
+        # 找出新角色和更新表情的角色
+        new_chars = [(c, e) for c, e in pending_chars if c not in shown]
+        update_chars = [(c, e) for c, e in pending_chars if c in shown and shown[c] != e]
+        
+        # 如果有新角色且已有一個角色，需要重新定位
+        if new_chars and len(shown) == 1:
+            other = list(shown.keys())[0]
+            # 檢查是否有更新這個角色的表情
+            updated_emotion = None
+            for c, e in update_chars:
+                if c == other:
+                    updated_emotion = e
+                    break
+            other_emotion = updated_emotion if updated_emotion else shown[other]
+            if char_positions.get(other) != 'left':
+                result.append(f"hide character {other}")
                 result.append(f"show character {other} {other_emotion} at left")
-                pos = 'right'
+                char_positions[other] = 'left'
+                shown[other] = other_emotion
+            # 從更新列表中移除已處理的
+            update_chars = [(c, e) for c, e in update_chars if c != other]
+        
+        # 顯示新角色
+        for cid, emotion in new_chars:
+            if len(shown) == 0 and len(new_chars) == 1:
+                pos = 'center'
+            elif len(shown) == 0 and len(new_chars) == 2:
+                # 兩個新角色同時出現
+                idx = [c for c, e in new_chars].index(cid)
+                pos = 'left' if idx == 0 else 'right'
             else:
                 pos = 'right'
             result.append(f"show character {cid} {emotion} at {pos} with fadeIn")
-        else:
-            # 只更新表情
-            keys = list(shown.keys())
-            idx = keys.index(cid)
-            pos = 'center' if len(keys) == 1 else ('left' if idx == 0 else 'right')
-            result.append(f"show character {cid} {emotion} at {pos}")
+            char_positions[cid] = pos
+            shown[cid] = emotion
         
-        shown[cid] = emotion
+        # 更新表情
+        for cid, emotion in update_chars:
+            pos = char_positions.get(cid, 'center')
+            result.append(f"show character {cid} {emotion} at {pos}")
+            shown[cid] = emotion
+        
+        pending_chars.clear()
+    
+    def change_scene(scene):
+        nonlocal current_scene, shown
+        if scene != current_scene:
+            result.append(f"show scene {scene} with fadeIn")
+            current_scene = scene
+            shown.clear()  # 場景切換時清除角色
+    
+    def queue_scene_change(text):
+        """檢查文字中是否有場景變化，排入待切換"""
+        nonlocal pending_scene
+        new_scene = detect_scene_from_text(text, current_scene)
+        if new_scene and new_scene != current_scene:
+            pending_scene = new_scene
+    
+    def flush_scene_change():
+        """在文字輸出後執行場景切換"""
+        nonlocal pending_scene
+        if pending_scene:
+            change_scene(pending_scene)
+            pending_scene = None
     
     # 清理
     clean = re.sub(r'\{\s*/\*.*?\*/\s*\}', '', body).strip()
     clean = re.sub(r'\[\[.+?\]\]', '', clean).strip()
     
-    # 場景
+    # 初始場景（從 Twee 標記）
     m = re.search(r'\{\s*/\*\s*scene:\s*(\w+)\s*\*/\s*\}', body)
     if m:
         sid = SCENE_MAPPING.get(m.group(1), 'secluded_alleyway')
-        result.append(f"show scene {sid} with fadeIn")
+        change_scene(sid)
     
     last_speaker = None
     
@@ -158,20 +228,26 @@ def convert_passage(name, body):
             before = m.group(1)
             quote = m.group(2)
             
-            # 引號前的旁白
             narration = para[last_end:m.start()] + before
             if narration.strip():
-                # 先輸出文字
+                # 檢查場景變化（排入待處理）
+                queue_scene_change(narration)
+                
+                # 輸出文字
                 for s in split_text(narration.strip()):
                     result.append(s)
                 
-                # 再顯示角色
+                # 文字輸出後切換場景
+                flush_scene_change()
+                
+                # 顯示角色
                 chars = detect_chars(narration)
                 emotion = detect_emotion(narration)
                 for cid in chars:
-                    show_char(cid, emotion)
+                    queue_char(cid, emotion)
+                flush_chars()
             
-            # 判斷是否是對話
+            # 對話
             full_before = para[:m.start()] + before
             if is_dialogue(full_before):
                 chars = detect_chars(before)
@@ -180,7 +256,8 @@ def convert_passage(name, body):
                 if speaker:
                     last_speaker = speaker
                     emotion = detect_emotion(quote)
-                    show_char(speaker, emotion)
+                    queue_char(speaker, emotion)
+                    flush_chars()
                     result.append(f"{speaker} {quote}")
                 else:
                     result.append(f"「{quote}」")
@@ -193,21 +270,37 @@ def convert_passage(name, body):
         if last_end < len(para):
             remaining = para[last_end:].strip()
             if remaining:
+                # 檢查場景變化（排入待處理）
+                queue_scene_change(remaining)
+                
                 for s in split_text(remaining):
                     result.append(s)
+                
+                # 文字輸出後切換場景
+                flush_scene_change()
+                
                 chars = detect_chars(remaining)
                 emotion = detect_emotion(remaining)
                 for cid in chars:
-                    show_char(cid, emotion)
+                    queue_char(cid, emotion)
+                flush_chars()
         
         # 沒有引號的段落
         if last_end == 0:
+            # 檢查場景變化（排入待處理）
+            queue_scene_change(para)
+            
             for s in split_text(para):
                 result.append(s)
+            
+            # 文字輸出後切換場景
+            flush_scene_change()
+            
             chars = detect_chars(para)
             emotion = detect_emotion(para)
             for cid in chars:
-                show_char(cid, emotion)
+                queue_char(cid, emotion)
+            flush_chars()
     
     choices = re.findall(r'\[\[(.+?)->(\w+)\]\]', body)
     return result, choices
@@ -262,7 +355,7 @@ monogatari.script({
     return out
 
 # Main
-print("Converting story...")
+print("Converting story with scene detection...")
 passages = parse_twee('C:/Users/lommi/Projects/visual-novel-toolkit/output/1140119_Temp/story.twee')
 print(f"Found {len(passages)} passages")
 

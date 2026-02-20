@@ -202,7 +202,7 @@ class MonogatariBuilder:
             }
         
         # 建構 JS 內容
-        lines = ['/* global monogatari */\n']
+        lines = ["'use strict';\n/* global monogatari */\n"]
         
         # 場景
         lines.append(f"monogatari.assets('scenes', {json.dumps(scenes, ensure_ascii=False, indent=2)});\n")
@@ -240,39 +240,42 @@ class MonogatariBuilder:
     
     def _generate_options_js(self, title: str):
         """生成 options.js"""
-        options = f'''/* global monogatari */
+        options = f''''use strict';
+/* global Monogatari */
+
+// 正確取得 monogatari 實例
+const {{ Monogatari: monogatari }} = Monogatari;
 
 monogatari.settings({{
     "Name": "{title}",
     "Version": "1.0.0",
+    "Label": "Start",
     "Slots": 10,
-    "AutoSaveSlots": 1,
+    "AutoSave": 0,
     "SaveLabel": "存檔",
     "AutoSaveLabel": "自動存檔",
     "SaveScreenshots": true,
     "ShowCredits": false,
     "TextSpeed": 30,
     "AutoPlaySpeed": 5,
-    "Resolution": {{
-        "Width": 1280,
-        "Height": 720
-    }},
+    "MultiLanguage": false,
+    "ShowMainScreen": true,
     "TypeAnimation": true,
-    "NVL": false
-}});
-
-// Asset path configuration
-monogatari.setting('AssetsPath', {{
-    root: 'assets',
-    characters: 'characters',
-    scenes: 'scenes'
+    "NVL": false,
+    "Preload": true,
+    "AssetsPath": {{
+        "root": "assets",
+        "characters": "characters",
+        "scenes": "scenes"
+    }}
 }});
 '''
         (self.output_dir / 'js' / 'options.js').write_text(options, encoding='utf-8')
     
     def _generate_storage_js(self):
         """生成 storage.js"""
-        storage = '''/* global monogatari */
+        storage = ''''use strict';
+/* global monogatari */
 
 monogatari.storage({
     player: {
@@ -284,10 +287,14 @@ monogatari.storage({
     
     def _generate_main_js(self):
         """生成 main.js"""
-        main = '''/* global monogatari */
+        main = ''''use strict';
+/* global Monogatari */
+/* global monogatari */
 
-monogatari.init('#monogatari').then(() => {
-    console.log('Monogatari 初始化完成');
+const { $_ready } = Monogatari;
+
+$_ready(() => {
+    monogatari.init('#monogatari');
 });
 '''
         (self.output_dir / 'js' / 'main.js').write_text(main, encoding='utf-8')
@@ -304,6 +311,13 @@ monogatari.init('#monogatari').then(() => {
     <!-- Monogatari CSS -->
     <link rel="stylesheet" href="./engine/core/monogatari.css">
     <link rel="stylesheet" href="./style/main.css">
+    
+    <!-- Monogatari JS -->
+    <script src="./engine/core/monogatari.js"></script>
+    <script src="./js/options.js"></script>
+    <script src="./js/storage.js"></script>
+    <script src="./js/script.js"></script>
+    <script src="./js/main.js"></script>
 </head>
 <body>
     <noscript>
@@ -328,19 +342,9 @@ monogatari.init('#monogatari').then(() => {
             <load-screen></load-screen>
             <save-screen></save-screen>
             <settings-screen></settings-screen>
+            <help-screen></help-screen>
         </visual-novel>
     </div>
-    
-    <!-- Monogatari JS -->
-    <script src="./engine/core/monogatari.js"></script>
-    <script>
-        // Monogatari exports as 'Monogatari', but scripts use 'monogatari'
-        window.monogatari = Monogatari.default || Monogatari;
-    </script>
-    <script src="./js/options.js"></script>
-    <script src="./js/storage.js"></script>
-    <script src="./js/script.js"></script>
-    <script src="./js/main.js"></script>
 </body>
 </html>'''
         (self.output_dir / 'index.html').write_text(html, encoding='utf-8')
@@ -360,22 +364,20 @@ body {
     height: 100vh;
 }
 
-/* 調整角色立繪大小和位置 */
+/* 調整角色立繪大小和位置 - 角色在對話框之上 */
 [data-character] {
-    max-height: 80vh !important;
+    max-height: 85vh !important;
     max-width: 40vw !important;
-    bottom: 0 !important;
+    bottom: 5vh !important;  /* 角色底部接近螢幕底部，緊貼對話框 */
     object-fit: contain !important;
+    z-index: 100 !important;  /* 確保角色在對話框之上 */
 }
 
-/* 角色在對話框上方 */
-[data-screen="game"] [data-character] {
-    z-index: 10;
-}
-
-/* 對話框層級 */
-text-box {
-    z-index: 20;
+/* 對話框層級 - 低於角色 */
+text-box,
+[data-component="text-box"] {
+    z-index: 50 !important;
+    position: relative !important;
 }
 
 /* 確保角色不會被裁切 */
@@ -395,6 +397,11 @@ game-screen {
 [data-character][data-position="center"] {
     left: 50% !important;
     transform: translateX(-50%) !important;
+}
+
+/* 對話框背景半透明 */
+[data-component="text-box"] {
+    background: rgba(0, 0, 0, 0.85) !important;
 }
 '''
         (self.output_dir / 'style' / 'main.css').write_text(css, encoding='utf-8')

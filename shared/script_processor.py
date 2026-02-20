@@ -237,6 +237,9 @@ class ScriptProcessor:
                     }
                 processed.append(choice_obj)
             elif name.startswith('Ending'):
+                # 加入結局標題通知
+                ending_title = self._get_ending_title(name)
+                processed.append(f'centered ── 結局：{ending_title} ──')
                 processed.append('end')
             
             result[name] = processed
@@ -288,6 +291,40 @@ class ScriptProcessor:
                 result.append(''.join(chunk))
         
         return result
+    
+    def _get_ending_title(self, passage_name: str) -> str:
+        """將結局段落名稱轉換為可讀標題
+        
+        Args:
+            passage_name: 段落名稱 (例如 "Ending_BreakChains")
+            
+        Returns:
+            可讀的結局標題
+        """
+        # 結局名稱對應表
+        ending_titles = {
+            'Ending_BreakChains': '破鏈重生',
+            'Ending_LostShadow': '消失的幽影',
+            'Ending_SilentEnd': '無聲的終結',
+            'Ending_Together': '相守一生',
+            'Ending_Sacrifice': '犧牲',
+            'Ending_Freedom': '自由',
+            'Ending_Hope': '希望',
+            'Ending_Farewell': '告別',
+        }
+        
+        if passage_name in ending_titles:
+            return ending_titles[passage_name]
+        
+        # 嘗試從段落名稱生成標題
+        # "Ending_BreakChains" -> "Break Chains" -> 直接使用英文
+        if passage_name.startswith('Ending_'):
+            name_part = passage_name[7:]  # 移除 "Ending_"
+            # 將 CamelCase 轉換為空格分隔
+            readable = re.sub(r'([a-z])([A-Z])', r'\1 \2', name_part)
+            return readable
+        
+        return passage_name
 
 
 # 預設角色對應表
