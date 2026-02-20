@@ -64,7 +64,7 @@ class GeminiProvider(AIProvider):
 請用繁體中文回答，並以 JSON 格式輸出結果。''',
     }
     
-    def __init__(self, api_key: str, model: str = "gemini-2.0-flash", 
+    def __init__(self, api_key: str, model: str = "gemini-3-flash-preview", 
                  cache_dir: Optional[Path] = None,
                  cache_ttl_minutes: int = 60):
         """
@@ -464,7 +464,7 @@ class AIClient:
             gemini_config = ai_config.get('gemini', {})
             self.provider = GeminiProvider(
                 api_key=gemini_config.get('api_key', ''),
-                model=gemini_config.get('model', 'gemini-2.0-flash'),
+                model=gemini_config.get('model', 'gemini-3-flash-preview'),
                 cache_ttl_minutes=cache_ttl if cache_enabled else 0
             )
         elif provider_name == 'openai':
