@@ -78,7 +78,7 @@ def init_caches():
     
     provider = GeminiProvider(
         api_key=gemini_config.get('api_key', ''),
-        model=gemini_config.get('model', 'gemini-2.0-flash'),
+        model=gemini_config.get('model', 'gemini-3-flash-preview'),
         cache_ttl_minutes=cache_config.get('ttl_minutes', 60)
     )
     
