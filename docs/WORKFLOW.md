@@ -264,6 +264,65 @@ taskkill /F /IM python.exe 2>nul; cd C:\Users\lommi\Projects\visual-novel-toolki
 
 ### 方法 1：GitHub Pages（推薦）
 
+#### **重要前置要求**
+
+⚠️ **GitHub Pages 免費版只支援公開的 repository！**
+
+如果你的 repository 是私有的，需要先改成公開：
+
+1. 前往 https://github.com/你的帳號/visual-novel-toolkit
+2. 點右上角 **Settings**
+3. 拉到最下面的 **Danger Zone**
+4. 找到 **Change repository visibility**
+5. 點 **Change visibility** → 選 **Make public**
+6. 輸入 repository 名稱確認：`你的帳號/visual-novel-toolkit`
+
+#### **方式 A：整個 visual-novel-toolkit 發布（多遊戲）**
+
+適合將多個遊戲放在一個網站上。
+
+**步驟 1：複製遊戲到 docs/games/**
+
+```bash
+cd C:\Users\lommi\Projects\visual-novel-toolkit
+
+# 創建遊戲資料夾
+mkdir docs\games\遊戲名稱
+
+# 複製遊戲檔案
+xcopy "output\故事名稱\game\*" "docs\games\遊戲名稱\" /E /I
+
+# 推送到 GitHub
+git add docs/games/遊戲名稱
+git commit -m "新增遊戲：遊戲名稱"
+git push
+```
+
+**步驟 2：設定 GitHub Pages**
+
+1. 前往 repository 的 **Settings** → **Pages**
+2. 設定：
+   - **Source**: Deploy from a branch
+   - **Branch**: `main`
+   - **Folder**: `/docs` ⚠️ **重要！選 /docs 不是 / (root)**
+3. 點 **Save**
+4. 等待 1-3 分鐘讓 GitHub 部署
+
+**步驟 3：確認部署成功**
+
+Settings → Pages 頁面上方會顯示：
+```
+✅ Your site is live at https://你的帳號.github.io/visual-novel-toolkit/
+```
+
+**遊戲網址**：
+- 主頁：`https://你的帳號.github.io/visual-novel-toolkit/`
+- 遊戲：`https://你的帳號.github.io/visual-novel-toolkit/games/遊戲名稱/`
+
+#### **方式 B：單一遊戲獨立發布**
+
+適合單一遊戲獨立發布到專屬 repository。
+
 ```bash
 cd output/故事名稱/game
 
@@ -384,9 +443,52 @@ git push
 # 3. Vercel 自動部署
 ```
 
-#### **創建遊戲列表首頁**
+#### **更新遊戲列表首頁**
 
-在 `docs/games/index.html` 創建作品集首頁（已提供範本）。
+每次新增遊戲後，需要更新 `docs/index.html` 加入新遊戲卡片。
+
+**編輯位置**：在 `docs/index.html` 找到 `<div class="games-grid">` 區塊。
+
+**新增遊戲卡片模板**：
+
+```html
+<!-- 遊戲名稱 -->
+<div class="game-card">
+    <a href="./games/遊戲資料夾名稱/">
+        <div class="game-cover">🎮</div> <!-- 改成適合的 emoji -->
+        <div class="game-info">
+            <h2 class="game-title">遊戲完整名稱</h2>
+            <p class="game-desc">遊戲簡介，吸引玩家的一兩句話...</p>
+            <span class="play-btn">開始遊玩 →</span>
+        </div>
+    </a>
+</div>
+```
+
+**範例**：
+
+```html
+<!-- 圖書館的幽靈 -->
+<div class="game-card">
+    <a href="./games/小花與佳樹/">
+        <div class="game-cover">📚👻</div>
+        <div class="game-info">
+            <h2 class="game-title">圖書館的幽靈：少女的校園反擊課</h2>
+            <p class="game-desc">小花在圖書館遇見了神秘的幽靈佳樹，一段關於復仇與救贖的校園故事就此展開...</p>
+            <span class="play-btn">開始遊玩 →</span>
+        </div>
+    </a>
+</div>
+```
+
+**Commit 變更**：
+
+```bash
+cd C:\Users\lommi\Projects\visual-novel-toolkit
+git add docs/index.html
+git commit -m "更新主頁：加入新遊戲"
+git push
+```
 
 範本內容：
 - 響應式卡片佈局
@@ -418,10 +520,140 @@ git push
 - ✅ CDN 加速
 - ✅ HTTPS 自動配置
 - ✅ 可自訂網域
+- ✅ 支援私有 repository
 
 **缺點**：
 - ❌ 需要將遊戲從 `output/` 複製到 `docs/games/`
 - ❌ 兩份檔案需要同步（開發版和發布版）
+
+---
+
+## 📊 **發布平台比較**
+
+| 特性 | GitHub Pages | Vercel | Netlify | itch.io |
+|------|--------------|---------|---------|---------|
+| **費用** | 完全免費 | 免費（有用量限制） | 免費（有用量限制） | 完全免費 |
+| **私有 Repo** | ❌ 需公開 | ✅ 支援 | ✅ 支援 | N/A（上傳檔案） |
+| **部署速度** | 1-3 分鐘 | ~30 秒 | ~1 分鐘 | 手動上傳 |
+| **自訂網域** | ✅ 支援 | ✅ 支援 | ✅ 支援 | ❌ 子網域 |
+| **自動部署** | ✅ Push 後自動 | ✅ Push 後自動 | ✅ Push 後自動 | ❌ 手動 |
+| **設定難度** | 簡單 | 簡單 | 簡單 | 最簡單 |
+| **遊戲社群** | ❌ | ❌ | ❌ | ✅ 專業遊戲平台 |
+
+**建議選擇**：
+- **不介意公開 + 多遊戲集合** → **GitHub Pages**（最簡單）
+- **想保持私有 + 需要快速部署** → **Vercel**
+- **想被更多玩家發現** → **itch.io**（遊戲社群平台）
+
+---
+
+## 🔧 **發布相關疑難排解**
+
+### GitHub Pages 相關
+
+#### Q：GitHub Pages 顯示 404
+
+**可能原因與解決方法**：
+
+1. **Repository 不是公開的**
+   - 解決：Settings → Danger Zone → Change visibility → Make public
+
+2. **Pages 資料夾設定錯誤**
+   - 解決：Settings → Pages → Folder 改成 `/docs`
+
+3. **檔案路徑問題（中文路徑）**
+   - 中文資料夾名稱在 URL 中會被編碼
+   - 例如：`小花與佳樹` → `%E5%B0%8F%E8%8A%B1%E8%88%87%E4%BD%B3%E6%A8%B9`
+   - 解決：可正常訪問，瀏覽器會自動處理
+
+4. **剛設定，還在部署中**
+   - 解決：等待 1-3 分鐘，檢查 Settings → Pages 的部署狀態
+
+#### Q：更新遊戲後，網站沒有變化
+
+**解決方法**：
+
+1. **確認已 push 到 GitHub**
+   ```bash
+   git status  # 確認沒有未 commit 的變更
+   git log -1  # 確認最新 commit
+   ```
+
+2. **強制刷新瀏覽器**
+   - Windows/Linux：`Ctrl + F5`
+   - Mac：`Cmd + Shift + R`
+
+3. **清除瀏覽器快取**
+   - Chrome：設定 → 隱私和安全性 → 清除瀏覽資料
+
+4. **檢查 GitHub Actions**
+   - Repository → Actions → 查看部署狀態
+   - 等待綠色勾勾 ✅
+
+### Vercel 相關
+
+#### Q：Vercel 部署後遊戲無法顯示
+
+**檢查步驟**：
+
+1. **檢查 Root Directory 設定**
+   - Vercel Dashboard → 專案 → Settings → General
+   - **Root Directory** 應為 `docs`
+   - 修改後點 **Save** → 重新部署
+
+2. **檢查檔案路徑**
+   - 確認 `docs/games/遊戲名稱/index.html` 存在
+   - 網址應為 `https://你的專案.vercel.app/games/遊戲名稱/`
+
+3. **強制重新部署**
+   - Deployments → 最新部署 → 右上角 ⋯ → Redeploy
+
+#### Q：Vercel 顯示 "Build failed"
+
+**解決方法**：
+
+1. **清空 Build Command**
+   - Settings → General → Build & Development Settings
+   - Build Command 應該是空的（靜態網站不需要）
+
+2. **檢查部署日誌**
+   - Deployments → 點擊失敗的部署 → 查看錯誤訊息
+
+### 遊戲載入相關
+
+#### Q：遊戲能開啟但圖片/音檔無法載入
+
+**原因**：資源路徑問題
+
+**解決方法**：
+
+1. **確認所有資源都已 commit 並 push**
+   ```bash
+   git status  # 確認 assets/ 資料夾已加入
+   ```
+
+2. **檢查路徑是相對路徑**
+   - ✅ 正確：`./assets/characters/hanako/normal.png`
+   - ❌ 錯誤：`C:\Users\...\assets\...`
+
+3. **查看瀏覽器 Console 錯誤**
+   - F12 → Console → 查看 404 錯誤
+   - 根據錯誤訊息修正路徑
+
+#### Q：遊戲在本地測試正常，但線上無法運作
+
+**可能原因**：
+
+1. **大小寫問題**（Linux 伺服器區分大小寫）
+   - 本地：`Hanako/Normal.png` 可能能載入
+   - 線上：必須完全匹配 `hanako/normal.png`
+   - 解決：統一使用小寫檔名
+
+2. **中文路徑編碼問題**
+   - 解決：確認檔案使用 UTF-8 編碼
+
+3. **CORS 問題**（使用外部資源時）
+   - 解決：將所有資源放在 `assets/` 資料夾內
 
 ---
 
