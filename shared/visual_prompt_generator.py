@@ -69,6 +69,10 @@ class VisualPromptGenerator:
         try:
             result = self.ai_client.analyze(prompt)
             
+            # DEBUG: 顯示 AI 回傳結果
+            print(f"[DEBUG] AI result keys: {result.keys() if result else 'None'}")
+            print(f"[DEBUG] visual_prompt: {result.get('visual_prompt', '')[:100] if result.get('visual_prompt') else 'EMPTY'}...")
+            
             # 合併結果到角色資料
             character_updated = character.copy()
             character_updated['visual_details'] = {

@@ -1,8 +1,0 @@
-{
-  "id": "cold_prison_cell",
-  "prompt": "Cinematic interior shot of a narrow, dark stone dungeon cell of a shadowy organization at night. A single, high-placed small iron-barred window allows a sharp, ethereal beam of pale moonlight to cut through the oppressive darkness, illuminating swirling dust motes. The walls are rugged, damp, and covered in faint moss and cracks. The floor is cold stone with small puddles reflecting the silver light. No people, focus on the oppressive, lonely, and sorrowful atmosphere. Highly detailed textures, 8k resolution, photorealistic, moody chiaroscuro lighting, Unreal Engine 5 render style, desaturated blue and grey color grading.監獄柵欄",
-  "model": "stable_diffusion",
-  "sd_model": "counterfeitV30_v30.safetensors",
-  "style": "cyberpunk",
-  "source_image": "scenes/cold_prison_cell/concept_3.png"
-}

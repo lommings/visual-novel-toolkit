@@ -351,11 +351,15 @@ class GeminiProvider(AIProvider):
     
     def _extract_json(self, text: str) -> dict:
         """從文字中提取 JSON"""
+        print(f"[DEBUG] _extract_json input (first 500 chars): {text[:500] if text else 'EMPTY'}")
+        
         # 嘗試直接解析
         try:
-            return json.loads(text)
-        except json.JSONDecodeError:
-            pass
+            result = json.loads(text)
+            print(f"[DEBUG] Direct JSON parse success")
+            return result
+        except json.JSONDecodeError as e:
+            print(f"[DEBUG] Direct parse failed: {e}")
         
         # 嘗試找 JSON 區塊
         patterns = [
@@ -369,11 +373,15 @@ class GeminiProvider(AIProvider):
             if match:
                 try:
                     json_str = match.group(1) if '```' in pattern else match.group(0)
-                    return json.loads(json_str)
-                except (json.JSONDecodeError, IndexError):
+                    result = json.loads(json_str)
+                    print(f"[DEBUG] Pattern match success: {pattern[:20]}")
+                    return result
+                except (json.JSONDecodeError, IndexError) as e:
+                    print(f"[DEBUG] Pattern {pattern[:20]} failed: {e}")
                     continue
         
         # 返回空字典
+        print(f"[DEBUG] All JSON extraction methods failed, returning empty dict")
         return {}
 
 

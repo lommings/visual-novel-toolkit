@@ -205,10 +205,7 @@ class GeminiProImageProvider(ImageProvider):
             # 使用 generate_content 並指定 IMAGE 輸出
             response = client.models.generate_content(
                 model=self.model,
-                contents=types.Content(
-                    role="user",
-                    parts=[types.Part.from_text(f"Generate an image: {prompt}")]
-                ),
+                contents=f"Generate an image: {prompt}",
                 config=types.GenerateContentConfig(
                     response_modalities=["IMAGE", "TEXT"]
                 )
@@ -256,13 +253,10 @@ class GeminiProImageProvider(ImageProvider):
             
             response = client.models.generate_content(
                 model=self.model,
-                contents=types.Content(
-                    role="user",
-                    parts=[
-                        types.Part.from_image(types.Image(image_bytes=img_bytes)),
-                        types.Part.from_text(f"Edit this image: {prompt}")
-                    ]
-                ),
+                contents=[
+                    types.Part.from_bytes(data=img_bytes, mime_type="image/png"),
+                    f"Edit this image: {prompt}"
+                ],
                 config=types.GenerateContentConfig(
                     response_modalities=["IMAGE", "TEXT"]
                 )

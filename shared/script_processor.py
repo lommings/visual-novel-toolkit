@@ -216,6 +216,7 @@ class ScriptProcessor:
             # 取得場景
             scene_code = data.get('scene_code') or data.get('scene')
             scene_id = scene_mapping.get(scene_code, scene_code)
+            print(f"    Passage '{name}': scene_code={scene_code} -> scene_id={scene_id}")
             
             # 分割文字為行
             text = data.get('text', '')

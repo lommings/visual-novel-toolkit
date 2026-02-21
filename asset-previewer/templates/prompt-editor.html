@@ -653,6 +653,9 @@
                     if (result.visual_details) {
                         showVisualDetails(type === 'character' ? 'char' : 'scene', id, result.visual_details);
                     }
+                    
+                    // 自動儲存
+                    autoSave();
                 } else {
                     statusEl.innerHTML = `<span class="status status-error">❌ ${result.error}</span>`;
                 }
@@ -1210,6 +1213,13 @@
         
         async function savePrompts() {
             try {
+                // 同時儲存到 session.json（用於頁面恢復）
+                await fetch('/api/save-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(editedData)
+                });
+                
                 const response = await fetch('/api/save-prompts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

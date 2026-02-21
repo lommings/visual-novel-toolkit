@@ -88,6 +88,7 @@ class MonogatariBuilder:
         scene_mapping = story_data.get('scene_mapping', {})
         
         print("  Processing script (adding character show commands)...")
+        print(f"  Scene mapping: {scene_mapping}")
         
         processed = self.script_processor.process_script(passages, scene_mapping)
         
@@ -364,7 +365,13 @@ body {
     height: 100vh;
 }
 
-/* 角色立繪大小和位置 - 在對話框之下 */
+/* 背景場景在最底層 */
+[data-scene],
+[data-component="scene"] {
+    z-index: 1 !important;
+}
+
+/* 角色立繪大小和位置 - 在場景之上、對話框之下 */
 [data-character] {
     max-height: 170vh !important;
     max-width: 80vw !important;

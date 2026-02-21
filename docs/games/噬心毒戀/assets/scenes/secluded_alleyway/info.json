@@ -1,8 +1,0 @@
-{
-  "id": "secluded_alleyway",
-  "prompt": "Cinematic wide shot of a desolate, narrow urban alleyway at night. The ground is slick with rain, creating vivid, distorted reflections of neon pink and teal lights from a distant bustling street. Ancient, crumbling brick walls are layered with rusted pipes and tattered, peeling advertisements. Dark corners are cluttered with overflowing trash and abandoned crates. Faint mist and steam rise from the damp ground. The atmosphere is heavy, oppressive, and tense, rendered in a high-contrast noir aesthetic with deep shadows and sharp highlights. 8k resolution, photorealistic, moody atmosphere, gritty urban texture, no people.",
-  "model": "stable_diffusion",
-  "sd_model": "counterfeitV30_v30.safetensors",
-  "style": "semi_realistic",
-  "source_image": "scenes/secluded_alleyway/concept_2.png"
-}

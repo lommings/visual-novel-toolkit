@@ -1,8 +1,0 @@
-{
-  "id": "private_hospital_ward",
-  "prompt": "Cinematic wide shot of a high-tech secret sanatorium ward at night. The room is enclosed with sleek, futuristic architecture and a massive panoramic window overlooking a distant, blurry cyberpunk city shrouded in rain. Inside, a sophisticated, empty life-support bed is surrounded by silent medical consoles with faint cyan glowing interfaces. The atmosphere is heavy with sorrow and a sense of finality. Deep shadows, cold blue and charcoal color grading, polished metallic surfaces with realistic reflections, hyper-realistic textures, 8k resolution, architectural photography style, moody and melancholic lighting.",
-  "model": "stable_diffusion",
-  "sd_model": "counterfeitV30_v30.safetensors",
-  "style": "semi_realistic",
-  "source_image": "scenes/private_hospital_ward/concept_3.png"
-}
