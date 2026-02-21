@@ -348,6 +348,115 @@ python tools/standardize_characters.py \
 xcopy "output\故事名稱\story\assets\characters" "output\故事名稱\game\assets\characters" /E /Y
 ```
 
+### Q5：如何添加角色的不同表情？
+
+遊戲組裝後，可以手動添加表情圖片並在對話中使用。
+
+#### **步驟 1：準備表情圖片**
+
+將表情圖片放到角色資料夾：
+
+```
+game/assets/characters/hanako/
+├── normal.png      ← 普通表情（已有）
+├── happy.png       ← 開心
+├── sad.png         ← 悲傷
+├── angry.png       ← 生氣
+└── surprised.png   ← 驚訝
+```
+
+**建議**：
+- 所有表情圖片**尺寸要一致**（例如都是 945 x 1200）
+- 使用 PNG 格式，透明背景
+- 可用標準化工具處理：
+
+```bash
+python tools/standardize_characters.py "game/assets/characters" --height 1200 --file happy.png
+python tools/standardize_characters.py "game/assets/characters" --height 1200 --file sad.png
+# ... 其他表情
+```
+
+#### **步驟 2：修改 script.js**
+
+打開 `game/js/script.js`，找到要改的對話段落。
+
+**範例：添加表情變化**
+
+```javascript
+'Route_Library': [
+    'show scene old_library_corner with fadeIn',
+    
+    // 1. 傷心地進入圖書館
+    'show character hanako sad at center with fadeIn',
+    '花子選擇了逃跑，她一路穿過長廊，躲進了校園最偏僻的圖書館角落。',
+    
+    // 2. 驚訝地發現書在動
+    'show character hanako surprised',
+    '就在這時，她面前的一本書竟無風自鼓，頁面快速翻動。',
+    
+    // 3. 見到佳樹後恢復正常
+    'show character hanako normal at left',
+    'show character yoshiki normal at right with fadeIn',
+    '他是佳樹，這座圖書館的幽靈。',
+]
+```
+
+#### **Monogatari 表情指令格式**
+
+| 情況 | 指令格式 | 範例 |
+|------|----------|------|
+| 顯示角色（首次出場） | `show character 角色ID 表情 at 位置 with fadeIn` | `show character hanako happy at center with fadeIn` |
+| 切換表情（已在場上） | `show character 角色ID 表情` | `show character hanako sad` |
+
+#### **可用的表情名稱**
+
+根據你準備的圖片檔名：
+
+| 圖片檔名 | 表情名稱 | 用法 |
+|----------|----------|------|
+| `normal.png` | `normal` | `show character hanako normal` |
+| `happy.png` | `happy` | `show character hanako happy` |
+| `sad.png` | `sad` | `show character hanako sad` |
+| `angry.png` | `angry` | `show character hanako angry` |
+| `surprised.png` | `surprised` | `show character hanako surprised` |
+
+#### **步驟 3：保存並測試**
+
+1. 保存 `script.js`
+2. 瀏覽器按 **Ctrl+F5** 強制刷新
+3. 測試對話，確認表情變化
+
+#### **快速測試範例**
+
+在 `Start` 段落添加測試代碼：
+
+```javascript
+'Start': [
+    'show scene aoba_academy_gate with fadeIn',
+    
+    'show character hanako normal at center with fadeIn',
+    '這是普通表情',
+    
+    'show character hanako happy',
+    '這是開心表情',
+    
+    'show character hanako sad',
+    '這是悲傷表情',
+    
+    'show character hanako angry',
+    '這是生氣表情',
+    
+    'show character hanako surprised',
+    '這是驚訝表情',
+]
+```
+
+#### **注意事項**
+
+- ⚠️ 表情圖片檔名必須對應指令中的表情名稱
+- ⚠️ 所有表情圖片尺寸應一致，避免切換時大小突變
+- ⚠️ 修改後記得強制刷新瀏覽器 (Ctrl+F5)
+
 ---
 
 ## 📝 **工作流程檢查表**
