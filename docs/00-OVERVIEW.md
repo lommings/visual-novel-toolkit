@@ -39,6 +39,15 @@
 └───────┬─────────┘
         │ 輸出：characters/ + scenes/ + selections.json
         ▼
+   ┌──────────────┐
+   │ 手動剪裁調整  │  統一構圖、去除多餘空間
+   └──────┬───────┘
+          ▼
+┌───────────────────────┐
+│ character-standardizer │  統一調整角色立繪高度
+└───────┬───────────────┘
+        │ 輸出：標準化的角色圖片
+        ▼
 ┌─────────────────┐
 │ game-assembler  │  組合文字 + 圖片 → Monogatari 遊戲
 └───────┬─────────┘
@@ -56,6 +65,7 @@
 | `novel-to-twee` | 小說→Twee+分支 | .txt/.md | .twee + analysis.json |
 | `twee-processor` | 分析+拆分段落 | .twee | processed.json |
 | `asset-previewer` | 預覽+挑選圖片 | processed.json | 圖片 + selections.json |
+| `character-standardizer` | 標準化角色尺寸 | 角色圖片資料夾 | 統一高度的圖片 |
 | `game-assembler` | 組合成遊戲 | processed.json + 圖片 | Monogatari 遊戲 |
 
 ---
@@ -69,9 +79,10 @@ visual-novel-toolkit/
 │   ├── 01-NOVEL-TO-TWEE.md      # novel-to-twee 規格
 │   ├── 02-TWEE-PROCESSOR.md     # twee-processor 規格
 │   ├── 03-ASSET-PREVIEWER.md    # asset-previewer 規格
-│   ├── 04-GAME-ASSEMBLER.md     # game-assembler 規格
-│   ├── 05-DATA-FORMATS.md       # 資料格式定義
-│   └── 06-SHARED-MODULES.md     # 共用模組說明
+│   ├── 04-CHARACTER-STANDARDIZER.md  # character-standardizer 規格
+│   ├── 05-GAME-ASSEMBLER.md     # game-assembler 規格
+│   ├── 06-DATA-FORMATS.md       # 資料格式定義
+│   └── 07-SHARED-MODULES.md     # 共用模組說明
 │
 ├── shared/                      # 共用模組
 │   ├── __init__.py
@@ -107,6 +118,10 @@ visual-novel-toolkit/
 │   ├── script_generator.py
 │   └── monogatari_exporter.py
 │
+├── tools/                       # 輔助工具
+│   ├── standardize_characters.py  # 角色立繪標準化
+│   └── README.md
+│
 ├── config.json                  # 全域設定
 ├── requirements.txt             # Python 依賴
 └── README.md                    # 使用說明
@@ -133,7 +148,7 @@ visual-novel-toolkit/
 - Debug 時追蹤問題
 - 跳過某個步驟重新執行
 
-詳見 [05-DATA-FORMATS.md](./05-DATA-FORMATS.md)
+詳見 [06-DATA-FORMATS.md](./06-DATA-FORMATS.md)
 
 ---
 
@@ -143,7 +158,8 @@ visual-novel-toolkit/
 2. `novel-to-twee` - 小說轉 Twee
 3. `twee-processor` - Twee 分析與拆分
 4. `asset-previewer` - 預覽與挑選
-5. `game-assembler` - 組合遊戲
+5. `tools/standardize_characters` - 角色立繪標準化
+6. `game-assembler` - 組合遊戲
 
 ---
 
@@ -152,3 +168,4 @@ visual-novel-toolkit/
 | 日期 | 版本 | 說明 |
 |------|------|------|
 | 2026-02-19 | v0.1 | 初版規劃 |
+| 2026-02-21 | v0.2 | 新增角色立繪標準化工具 |
