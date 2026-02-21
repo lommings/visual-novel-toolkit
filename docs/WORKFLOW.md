@@ -457,6 +457,218 @@ python tools/standardize_characters.py "game/assets/characters" --height 1200 --
 - ⚠️ 所有表情圖片尺寸應一致，避免切換時大小突變
 - ⚠️ 修改後記得強制刷新瀏覽器 (Ctrl+F5)
 
+### Q6：如何修改故事路線和劇情？
+
+有兩種方法，推薦使用方法 B 以保持原始檔案和最終遊戲同步。
+
+#### **方法 A：直接修改 script.js（小修改）**
+
+**位置**：`output/故事名稱/game/js/script.js`
+
+**適用於**：
+- 修改少量對話
+- 調整選項文字
+- 微調劇情
+
+**優點**：
+- ✅ 快速立即生效
+- ✅ 不影響其他手動修改
+
+**缺點**：
+- ❌ 重新組裝會消失
+- ❌ 原始檔案不同步
+
+#### **方法 B：修改 Twee 重新組裝（推薦）** ⭐
+
+適用於任何劇情修改，保持檔案同步。
+
+##### **步驟 1：備份手動修改**
+
+⚠️ **重要**：重新組裝會覆蓋所有手動修改！
+
+備份這些檔案：
+
+```bash
+# 備份 CSS（如果有自定義修改）
+copy "output\故事名稱\game\style\main.css" "output\故事名稱\main.css.backup"
+
+# 備份主選單背景（如果有添加）
+copy "output\故事名稱\game\assets\scenes\main-menu-bg.png" "output\故事名稱\main-menu-bg.backup.png"
+
+# 或使用 Git
+cd output/故事名稱/game
+git add -A
+git commit -m "重新組裝前備份"
+```
+
+##### **步驟 2：修改 Twee 檔案**
+
+**位置**：`output/故事名稱/story.twee`
+
+**Twee 格式範例**：
+
+```twee
+:: Start
+{/* scene: S01 */}
+東京的春天帶著一種喧囂的冷漠。花子拖著沉重的行李箱站在私立青葉學園的門口。
+
+她握緊拳頭，對自己說：「我一定不能給爸爸媽媽添麻煩。」
+
+[[躲進圖書館哭泣->Route_Library]]
+[[試圖向老師告狀->Route_Teacher]]
+[[在教室大聲質問是誰做的->Route_Confront]]
+
+:: Route_Library
+{/* scene: S02 */}
+花子選擇了逃跑，她一路穿過長廊，躲進了校園最偏僻的圖書館角落。
+
+這裡空氣中瀰漫著古舊書卷的氣息，讓她的恐懼稍微平復。
+
+[[繼續->Meet_Yoshiki]]
+```
+
+**修改技巧**：
+
+| 要修改的內容 | Twee 語法 |
+|--------------|-----------|
+| 對話內容 | 直接寫在段落中 |
+| 場景切換 | `{/* scene: 場景代碼 */}` |
+| 選項 | `[[選項文字->目標段落名稱]]` |
+| 新增段落 | `:: 段落名稱` |
+| 結局 | 段落名稱以 `Ending_` 開頭 |
+
+##### **步驟 3：重新組裝遊戲**
+
+```bash
+cd C:\Users\lommi\Projects\visual-novel-toolkit
+
+python game-assembler/monogatari_builder.py \
+    --twee "output/故事名稱/story.twee" \
+    --assets "output/故事名稱/story/assets" \
+    --assets-json "output/故事名稱/story/assets-needed.json" \
+    --scene-mapping "output/故事名稱/scene-mapping.json" \
+    -o "output/故事名稱/game" \
+    --no-rembg
+```
+
+##### **步驟 4：重新應用手動修改**
+
+組裝後需要重新做這些調整：
+
+**1. 恢復主選單背景**
+
+如果有自定義主選單背景，在 `game/style/main.css` 最後添加：
+
+```css
+/* 主選單背景 */
+[data-screen="main"],
+#main-screen {
+    background-image: url('../assets/scenes/main-menu-bg.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+```
+
+然後複製背景圖：
+
+```bash
+copy "output\故事名稱\main-menu-bg.backup.png" "output\故事名稱\game\assets\scenes\main-menu-bg.png"
+```
+
+**2. 恢復角色大小設定**
+
+如果有自定義角色大小，修改 `game/style/main.css`：
+
+```css
+/* 半身立繪優化設定 - 適合三人同框 */
+[data-character] {
+    max-height: 65vh !important;
+    max-width: 35vw !important;
+    bottom: 18vh !important;
+    object-fit: contain !important;
+    z-index: 50 !important;
+    pointer-events: none !important;
+}
+
+/* 佳樹（幽靈）單獨設定 */
+[data-character="yoshiki"] {
+    max-height: 70vh !important;
+    max-width: 40vw !important;
+}
+
+/* 大樹（哥哥）單獨設定 */
+[data-character="daiki"] {
+    max-height: 70vh !important;
+    max-width: 42vw !important;
+}
+```
+
+**3. 檢查場景名稱**
+
+如果之前有修正場景名稱（如 `SCENE_07_REVENGE_B` → `hostile_classroom`），檢查 `game/js/script.js` 是否需要重新修正。
+
+##### **步驟 5：測試遊戲**
+
+```bash
+cd output/故事名稱/game
+python -m http.server 8080
+```
+
+打開 http://localhost:8080/ 測試所有修改。
+
+##### **最佳實踐**
+
+**使用 Git 追蹤修改**：
+
+```bash
+# 初次組裝後
+cd output/故事名稱/game
+git init
+git add -A
+git commit -m "初次組裝"
+
+# 手動調整後
+git add -A
+git commit -m "手動調整：主選單背景、角色大小"
+
+# 修改 Twee 重新組裝後
+# Git 會顯示差異，方便重新應用修改
+git diff
+```
+
+**創建修改檢查表**：
+
+在 `output/故事名稱/` 創建 `CUSTOMIZATIONS.md`：
+
+```markdown
+# 手動修改記錄
+
+## CSS 修改
+- [ ] 主選單背景
+- [ ] 角色大小設定（花子 65vh、佳樹 70vh、大樹 70vh）
+
+## 場景修正
+- [ ] SCENE_07_REVENGE_B → hostile_classroom
+- [ ] SCENE_08_DAIKI → library_strategy_room
+- [ ] ...
+
+## 其他
+- [ ] 主選單背景圖 (main-menu-bg.png)
+```
+
+每次重新組裝後，對照檢查表重新應用修改。
+
+##### **總結流程**
+
+```
+1. 備份手動修改 → Git commit 或複製檔案
+2. 修改 story.twee → 編輯對話、選項、分支
+3. 重新組裝遊戲 → 執行 monogatari_builder.py
+4. 重新應用修改 → 對照檢查表逐一恢復
+5. 測試遊戲 → 確認所有修改生效
+```
+
 ---
 
 ## 📝 **工作流程檢查表**
