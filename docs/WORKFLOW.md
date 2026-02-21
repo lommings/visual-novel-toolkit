@@ -297,6 +297,132 @@ git push -u origin main
 4. Kind of project 選 `HTML`
 5. 勾選 `This file will be played in the browser`
 
+### 方法 4：Vercel（自動部署，推薦）** ⭐
+
+**特色**：連接 GitHub 自動部署，推送更新即自動更新網站。
+
+#### **前置準備：將遊戲放到 docs/games/**
+
+⚠️ **重要**：`output/` 資料夾在 `.gitignore` 中，不會推送到 GitHub！
+
+需要將遊戲複製到 `docs/games/` 資料夾：
+
+```bash
+cd C:\Users\lommi\Projects\visual-novel-toolkit
+
+# 創建遊戲資料夾
+mkdir docs\games\遊戲名稱
+
+# 複製遊戲檔案
+xcopy "output\專案資料夾\game\*" "docs\games\遊戲名稱\" /E /I
+
+# 推送到 GitHub
+git add docs/games/遊戲名稱
+git commit -m "新增遊戲：遊戲名稱"
+git push
+```
+
+#### **首次設定**
+
+1. **登入 Vercel**
+   - 到 https://vercel.com/
+   - 用 GitHub 帳號登入
+
+2. **Import Project**
+   - 點擊 **Add New... → Project**
+   - 選擇 **Import Git Repository**
+   - 選擇 `visual-novel-toolkit` repo
+
+3. **設定專案**
+   - **Framework Preset**: Other
+   - **Root Directory**: `docs` ⭐ 重要！
+   - **Build Command**: 留空
+   - **Output Directory**: 留空
+   - **Install Command**: 留空
+   - 點擊 **Deploy**
+
+4. **完成！**
+   - 部署完成後會顯示網址
+   - 預設：`https://visual-novel-toolkit.vercel.app`
+
+#### **遊戲網址結構**
+
+| 網址 | 內容 |
+|------|------|
+| `https://visual-novel-toolkit.vercel.app/` | docs/ 根目錄 |
+| `https://visual-novel-toolkit.vercel.app/games/` | 遊戲列表首頁 |
+| `https://visual-novel-toolkit.vercel.app/games/小花與佳樹/` | 小花與佳樹遊戲 |
+
+#### **更新遊戲**
+
+**方法 A：修改後重新複製推送**
+
+```bash
+# 1. 修改遊戲（在 output/專案資料夾/game/）
+# 2. 重新複製到 docs/games/
+xcopy "output\專案資料夾\game\*" "docs\games\遊戲名稱\" /E /I /Y
+
+# 3. 推送到 GitHub
+git add docs/games/遊戲名稱
+git commit -m "更新遊戲：修改劇情"
+git push
+
+# 4. Vercel 自動重新部署（約 1-2 分鐘）
+```
+
+**方法 B：直接修改 docs/games/ 中的檔案**
+
+如果只是小修改（改對話、CSS），可以直接編輯 `docs/games/遊戲名稱/` 中的檔案：
+
+```bash
+# 1. 直接修改 docs/games/遊戲名稱/js/script.js
+# 2. 推送
+git add docs/games/遊戲名稱
+git commit -m "修改對話"
+git push
+
+# 3. Vercel 自動部署
+```
+
+#### **創建遊戲列表首頁**
+
+在 `docs/games/index.html` 創建作品集首頁（已提供範本）。
+
+範本內容：
+- 響應式卡片佈局
+- 遊戲縮圖和簡介
+- 一鍵開始遊戲按鈕
+- 可自由添加多個遊戲
+
+#### **Vercel 設定檢查**
+
+如果部署後遊戲無法顯示：
+
+1. **檢查 Root Directory**
+   - Vercel Dashboard → 專案 → Settings → General
+   - **Root Directory** 應為 `docs`
+   - 如果不對，修改後重新部署
+
+2. **強制重新部署**
+   - Deployments → 最新部署 → 右上角 ⋯ → Redeploy
+
+3. **檢查檔案路徑**
+   - 確認遊戲在 `docs/games/遊戲名稱/index.html`
+   - 網址應為 `https://你的專案.vercel.app/games/遊戲名稱/`
+
+#### **優點與缺點**
+
+**優點**：
+- ✅ 自動部署（推送 GitHub 即更新）
+- ✅ 免費
+- ✅ CDN 加速
+- ✅ HTTPS 自動配置
+- ✅ 可自訂網域
+
+**缺點**：
+- ❌ 需要將遊戲從 `output/` 複製到 `docs/games/`
+- ❌ 兩份檔案需要同步（開發版和發布版）
+
 ---
 
 ## 🔧 **常見問題**
