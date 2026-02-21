@@ -1,0 +1,13 @@
+{
+  "id": "daiki",
+  "prompt": "A highly detailed portrait of a 25-year-old male student teacher. He has neat yet slightly messy black hair and pale, porcelain skin. He wears thin silver-rimmed spectacles over deep, dark brown eyes that harbor a chilling intensity and hidden madness. His expression is calm and professional, yet hauntingly melancholic. He is dressed in a crisp white button-up shirt, a slim dark grey necktie, and a navy blue knit vest. Tall and slender physique. The lighting is cinematic and dramatic, casting a subtle shadow over one side of his face to symbolize his dual nature. Sophisticated but ominous atmosphere, photorealistic, 8k resolution, sharp focus.",
+  "style": "anime",
+  "source_image": "characters/daiki/concept_2.png",
+  "expressions": {
+    "normal": "normal.png",
+    "happy": "happy.png",
+    "sad": "sad.png",
+    "angry": "angry.png",
+    "surprised": "surprised.png"
+  }
+}

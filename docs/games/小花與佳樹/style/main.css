@@ -1,0 +1,80 @@
+/* Custom styles for visual novel */
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* 主選單背景 */
+[data-screen="main"],
+#main-screen {
+    background-image: url('../assets/scenes/main-menu-bg.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
+#monogatari {
+    width: 100vw;
+    height: 100vh;
+}
+
+/* 背景場景在最底層 */
+[data-scene],
+[data-component="scene"] {
+    z-index: 1 !important;
+}
+
+/* 角色立繪大小和位置 - 在場景之上、對話框之下 */
+/* 半身立繪優化設定 - 適合三人同框 */
+[data-character] {
+    max-height: 65vh !important;
+    max-width: 35vw !important;
+    bottom: 18vh !important;
+    object-fit: contain !important;
+    z-index: 50 !important;
+    pointer-events: none !important;
+}
+
+/* 佳樹（幽靈）單獨設定 - 顯示更大 */
+[data-character="yoshiki"] {
+    max-height: 70vh !important;
+    max-width: 40vw !important;
+}
+
+/* 大樹（哥哥）單獨設定 - 比佳樹略高 */
+[data-character="daiki"] {
+    max-height: 70vh !important;
+    max-width: 42vw !important;
+}
+
+/* 對話框在角色之上 */
+[data-component="text-box"],
+text-box {
+    z-index: 100 !important;
+}
+
+/* 選項按鈕在最上層 */
+[data-component="choice-container"],
+choice-container {
+    z-index: 200 !important;
+}
+
+/* 角色位置 */
+[data-character][data-position="left"] {
+    left: 5% !important;
+}
+
+[data-character][data-position="right"] {
+    right: 5% !important;
+}
+
+[data-character][data-position="center"] {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}
+
+/* 對話框背景 */
+[data-component="text-box"] {
+    background: rgba(0, 0, 0, 0.85) !important;
+}

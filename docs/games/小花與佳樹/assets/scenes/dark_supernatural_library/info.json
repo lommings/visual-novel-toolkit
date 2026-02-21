@@ -1,0 +1,8 @@
+{
+  "id": "dark_supernatural_library",
+  "prompt": " Towering dark wooden bookshelves stretching into the infinite darkness. Cold, spectral moonlight streaming through tall, broken lancet windows, creating sharp highlights and deep, pitch-black shadows. On a high-altitude wooden platform, several blood-stained paper talismans with jagged calligraphy are scattered and pinned to the wood.",
+  "model": "stable_diffusion",
+  "sd_model": "meinamix_v12Final.safetensors",
+  "style": "anime",
+  "source_image": "scenes/dark_supernatural_library/concept_1.png"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "old_library_corner",
+  "prompt": "Interior of a hidden, ancient campus library corner during the day. Massive, dark-stained wooden bookshelves reach toward the ceiling, overflowing with weathered, antique books and yellowed scrolls. A grand, multi-paned floor-to-ceiling window at the end of the aisle floods the space with brilliant, ethereal sunlight. Intense light beams (God rays) cut through the dimness, illuminating millions of dancing dust motes in the air. The atmosphere is quiet, melancholic, and deeply serene. Color palette of deep mahogany, burnt umber, and soft golden-white light. High contrast between the blinding window and the deep, shadowy recesses of the library. Cinematic lighting, hyper-realistic textures of aged paper and carved wood, 8k resolution, serene and mysterious ambiance, no people.",
+  "model": "stable_diffusion",
+  "sd_model": "meinamix_v12Final.safetensors",
+  "style": "anime",
+  "source_image": "scenes/old_library_corner/concept_3.png"
+}

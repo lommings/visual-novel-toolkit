@@ -1,0 +1,8 @@
+{
+  "id": "sealed_school_gate",
+  "prompt": " The concrete gate pillars and walls are completely smothered in thousands of white Shinto paper talismans with glowing red calligraphy. The setting sun bleeds deep orange and purple across the sky, while the charms emit an eerie, faint spiritual light. The air is thick and distorted with transparent, shimmering ripples like heat waves, suggesting invisible spirits thrashing against the seals. Oppressive atmosphere, tense and supernatural, hyper-realistic textures of weathered paper and cold stone, dark fantasy aesthetic",
+  "model": "stable_diffusion",
+  "sd_model": "meinamix_v12Final.safetensors",
+  "style": "anime",
+  "source_image": "scenes/sealed_school_gate/concept_1.png"
+}

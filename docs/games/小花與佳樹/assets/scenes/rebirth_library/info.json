@@ -1,0 +1,8 @@
+{
+  "id": "rebirth_library",
+  "prompt": "A serene and pristine library interior, sun-drenched atmosphere. Massive arched windows allow brilliant golden sunlight to pour in, creating sharp volumetric light beams. In the center, a solitary wooden desk sits by the window with an open book whose pages are gently fluttering in a soft breeze. The room is filled with sparkling golden dust motes dancing in the air. Towering bookshelves made of light oak line the walls, filled with books. Sheer white curtains billow softly. The environment is crystal clear, peaceful, and full of hope. No people, empty chairs. Hyper-realistic, cinematic lighting, architectural photography, 8k resolution, ethereal and airy aesthetic.",
+  "model": "stable_diffusion",
+  "sd_model": "meinamix_v12Final.safetensors",
+  "style": "anime",
+  "source_image": "scenes/rebirth_library/concept_3.png"
+}

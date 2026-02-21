@@ -1,0 +1,8 @@
+{
+  "id": "library_strategy_room",
+  "prompt": "An eerie and desolate library at dusk. In the foreground, a cluttered wooden desk is piled high with psychology books, anatomical brain diagrams, and scattered handwritten notes. On the desk lies an open book next to a discarded, blood-stained white handkerchief. The background features infinite rows of towering bookshelves vanishing into deep, expanding shadows. The lighting is a mix of dim, flickering overhead lamps and weak orange twilight from tall Gothic windows. The shadows appear unnaturally long and sentient, crawling across the floor. No people present. Dark academia aesthetic, cinematic atmosphere, highly detailed, 8k resolution, photorealistic, moody and dangerous vibe.",
+  "model": "stable_diffusion",
+  "sd_model": "meinamix_v12Final.safetensors",
+  "style": "anime",
+  "source_image": "scenes/library_strategy_room/concept_1.png"
+}

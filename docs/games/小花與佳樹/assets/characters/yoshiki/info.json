@@ -1,0 +1,13 @@
+{
+  "id": "yoshiki",
+  "prompt": "A cinematic character portrait of a male ghost named Yoshiki, late teens, tall and slender. He has messy chin-length 金色 raven hair and sharp, desaturated pale blue eyes with a weary, intellectual expression. He is wearing a vintage high-collared black Gakuran school uniform with tarnished buttons, appearing slightly faded. His skin is deathly pale and semi-transparent. The overall atmosphere is melancholic, ethereal, and cold, with faint blue spectral mist and glowing spirit particles surrounding his silhouette. Library background with soft bokeh, ghostly aesthetic, highly detailed",
+  "style": "anime",
+  "source_image": "characters/yoshiki/concept_3.png",
+  "expressions": {
+    "normal": "normal.png",
+    "happy": "happy.png",
+    "sad": "sad.png",
+    "angry": "angry.png",
+    "surprised": "surprised.png"
+  }
+}

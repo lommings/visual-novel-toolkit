@@ -1,0 +1,8 @@
+{
+  "id": "withered_hospital_room",
+  "prompt": "Cinematic indoor shot of a desolate, sterile hospital room at night. The focus is on an empty, rumpled medical bed with cold white sheets, looking abandoned and heavy with sorrow. Next to the bed, an old-fashioned heart monitor emits a faint, sickly green light showing a near-flatline. A tall, skeletal IV stand casts a long, distorted shadow against the peeling white walls. On a bedside table, a vase of withered, drooping lilies drops dead petals onto the floor. Pale, ghostly moonlight streaks through a window, illuminating floating dust motes in the stagnant air. The atmosphere is thick with regret and mourning. Highly detailed, photorealistic, desaturated colors, deep shadows, melancholic and haunting aesthetic, 8k resolution.",
+  "model": "stable_diffusion",
+  "sd_model": "meinamix_v12Final.safetensors",
+  "style": "anime",
+  "source_image": "scenes/withered_hospital_room/concept_2.png"
+}

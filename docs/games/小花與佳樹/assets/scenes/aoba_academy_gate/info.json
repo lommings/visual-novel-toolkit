@@ -1,0 +1,8 @@
+{
+  "id": "aoba_academy_gate",
+  "prompt": "high school entrance gate in spring, cherry blossom trees in full bloom, sakura petals falling in the air, soft pink lighting, entrance ceremony signboard, modern wooden and metal school gate, bright morning sunlight, soft bloom effect, pastel color palette, cinematic atmosphere, detailed environment, no main character, wide composition, depth of field, gentle spring breeze, peaceful mood",
+  "model": "stable_diffusion",
+  "sd_model": "counterfeitV30_v30.safetensors",
+  "style": "natural",
+  "source_image": "scenes/aoba_academy_gate/concept_1.png"
+}

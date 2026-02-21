@@ -1,0 +1,13 @@
+{
+  "id": "hanako",
+  "prompt": "A high-quality portrait of a 17-year-old Japanese female student named Hanako. She has short, 粉紅 hair that is cut unevenly with jagged, choppy ends. Her face is pale and elegant, featuring sharp, piercing obsidian eyes with a cold, ruthless, and stoic gaze. She has a slender build and stands with a rigid, firm posture. She is wearing a formal Aoba Academy uniform consisting of a navy blue blazer, a white shirt with a dark ribbon, and a pleated skirt. The overall atmosphere is cold, resilient, and slightly menacing. Cinematic lighting, sharp focus, hyper-realistic, masterpiece",
+  "style": "anime",
+  "source_image": "characters/hanako/concept_4.png",
+  "expressions": {
+    "normal": "normal.png",
+    "happy": "happy.png",
+    "sad": "sad.png",
+    "angry": "angry.png",
+    "surprised": "surprised.png"
+  }
+}

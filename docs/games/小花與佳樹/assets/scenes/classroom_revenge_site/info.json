@@ -1,0 +1,8 @@
+{
+  "id": "classroom_revenge_site",
+  "prompt": "An empty, devastated classroom at sunset. The floor is drenched in thick, unidentified dark liquid reflecting a fiery crimson sky. Long, distorted shadows of window frames stretch across the chaos of overturned desks and shattered chairs. Intense red sunlight pierces through broken glass, illuminating floating dust motes and torn papers. The center of the room is an eerie, wet void, while furniture is crammed into the dark corners. Atmospheric, psychological thriller aesthetic, cinematic lighting, hyper-realistic textures, gritty and macabre, 8k resolution, silent and haunting atmosphere.",
+  "model": "stable_diffusion",
+  "sd_model": "meinamix_v12Final.safetensors",
+  "style": "anime",
+  "source_image": "scenes/classroom_revenge_site/concept_3.png"
+}

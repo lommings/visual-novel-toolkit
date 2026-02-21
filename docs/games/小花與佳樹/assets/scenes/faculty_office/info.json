@@ -1,0 +1,8 @@
+{
+  "id": "faculty_office",
+  "prompt": " high school staff room, long rows of desks arranged in parallel, metal filing cabinets along the walls, fluorescent ceiling lights, large windows with sunlight streaming in, stacks of papers and textbooks neatly placed, chalkboard with schedule notes in Japanese, wall clock, tea kettle on a small cabinet, calm working atmosphere, cinematic lighting, natural colors, high detail, depth of field, no main character",
+  "model": "stable_diffusion",
+  "sd_model": "counterfeitV30_v30.safetensors",
+  "style": "semi_realistic",
+  "source_image": "scenes/faculty_office/concept_3.png"
+}

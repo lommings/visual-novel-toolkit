@@ -1,0 +1,8 @@
+{
+  "id": "dusk_library_confrontation",
+  "prompt": "A solemn, cinematic interior of a grand classical library at sunset. Intense, fiery orange-red sunlight pours through tall arched windows, creating sharp, dramatic light shafts that cut through a heavy, sorrowful atmosphere. The light illuminates swirling golden dust and floating paper debris, while casting long, distorted shadows across the polished dark wood floor. Towering, dark mahogany bookshelves line the aisle, their textures highlighted by the harsh horizontal light. In the center of the frame, the air shimmers with a localized, glitch-like temporal distortion and flickering light, suggesting a painful struggle between warmth and encroaching cold darkness. No people. High contrast, melancholic mood, hyper-realistic textures, 8k resolution, ethereal and haunting.",
+  "model": "stable_diffusion",
+  "sd_model": "meinamix_v12Final.safetensors",
+  "style": "anime",
+  "source_image": "scenes/dusk_library_confrontation/concept_3.png"
+}

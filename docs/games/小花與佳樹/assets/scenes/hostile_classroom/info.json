@@ -1,0 +1,8 @@
+{
+  "id": "hostile_classroom",
+  "prompt": "A cinematic, photorealistic indoor classroom scene filled with a hostile atmosphere. The focus is on a single, isolated wooden desk heavily vandalized with ink stains and aggressive scratches. The floor is littered with the wreckage of torn textbooks, crumpled notes, and scattered trash. One chair is overturned nearby. Blindingly bright, cold natural sunlight streams through tall windows, casting long, sharp, cage-like shadows across the room. The color palette is desaturated and sickly, dominated by pale yellows and cold greys. Dust particles are suspended in the harsh light beams, suggesting a stagnant, suffocating environment. No people, only the haunting remains of conflict. 8k resolution, psychological thriller aesthetic, high contrast, sharp details.",
+  "model": "stable_diffusion",
+  "sd_model": "meinamix_v12Final.safetensors",
+  "style": "anime",
+  "source_image": "scenes/hostile_classroom/concept_3.png"
+}
