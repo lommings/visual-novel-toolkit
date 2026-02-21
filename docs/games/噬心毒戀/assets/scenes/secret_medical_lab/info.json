@@ -1,0 +1,8 @@
+{
+  "id": "secret_medical_lab",
+  "prompt": "A hyper-realistic, cinematic interior of a secret pharmaceutical laboratory at night. The room is filled with precision medical instruments, stainless steel lab benches, and complex chemical reagents in glass containers. The lighting is cold, harsh, and piercingly white with deep, suspicious shadows. Stacks of classified research folders labeled 'GHOST LINK' are scattered across a central desk alongside intricate hand-drawn molecular structure diagrams and mathematical formulas. The atmosphere is heavy, sterile, and filled with tension. Digital screens in the background display glowing blue DNA helices and biological data. No people. 8k resolution, industrial cyberpunk aesthetic, sharp focus, highly detailed textures of metal and glass.",
+  "model": "stable_diffusion",
+  "sd_model": "counterfeitV30_v30.safetensors",
+  "style": "cyberpunk",
+  "source_image": "scenes/secret_medical_lab/concept_1.png"
+}

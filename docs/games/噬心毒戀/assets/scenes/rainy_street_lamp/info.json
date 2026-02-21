@@ -1,0 +1,8 @@
+{
+  "id": "rainy_street_lamp",
+  "prompt": "Cinematic outdoor scene at night in a heavy downpour. A solitary vintage streetlight stands tall, casting a warm, hazy amber glow that creates a luminous halo in the dense falling rain. The ground is a slick, soaked asphalt road, acting as a mirror that reflects the golden light in shimmering, distorted ripples. The atmosphere is deeply melancholic and romantic. In the background, the dark silhouettes of urban buildings are blurred by mist and shadow. Deep midnight blue and charcoal tones dominate the shadows, contrasted sharply by the radiant yellow light. Hyper-realistic textures, 8k resolution, volumetric lighting, intricate water splashes on the pavement, moody noir aesthetic, highly detailed, no people.",
+  "model": "stable_diffusion",
+  "sd_model": "counterfeitV30_v30.safetensors",
+  "style": "natural",
+  "source_image": "scenes/rainy_street_lamp/concept_1.png"
+}

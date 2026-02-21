@@ -1,0 +1,58 @@
+/* Custom styles for visual novel */
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#monogatari {
+    width: 100vw;
+    height: 100vh;
+}
+
+/* 調整角色立繪大小和位置 - 角色在對話框之上 */
+[data-character] {
+    max-height: 85vh !important;
+    max-width: 40vw !important;
+    bottom: 5vh !important;  /* 角色底部接近螢幕底部，但在對話框之上 */
+    object-fit: contain !important;
+    z-index: 100 !important;  /* 確保角色在對話框之上 */
+}
+
+/* 對話框層級 - 低於角色 */
+text-box,
+[data-component="text-box"] {
+    z-index: 50 !important;
+    position: relative !important;
+}
+
+/* 確保角色不會被裁切 */
+game-screen {
+    overflow: visible !important;
+}
+
+/* 角色立繪位置微調 */
+[data-character][data-position="left"] {
+    left: 5% !important;
+}
+
+[data-character][data-position="right"] {
+    right: 5% !important;
+}
+
+[data-character][data-position="center"] {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}
+
+/* 對話框背景半透明 */
+[data-component="text-box"] {
+    background: rgba(0, 0, 0, 0.85) !important;
+}
+
+/* 主選單背景圖 */
+[data-screen="main"] {
+    background-image: url('../assets/main-menu-bg.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+}

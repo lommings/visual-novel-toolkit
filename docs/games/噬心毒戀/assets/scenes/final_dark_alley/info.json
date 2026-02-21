@@ -1,0 +1,8 @@
+{
+  "id": "final_dark_alley",
+  "prompt": "A cinematic wide shot of a narrow, rain-drenched urban alleyway at night. Torrential downpour with heavy droplets splashing against reflective, wet cobblestones. In the far distance, ominous silhouettes of a pursuing force are obscured by mist and the frantic movement of yellow searchlights. The scene is framed by crumbling brick walls and rusted iron fire escapes. The atmosphere is tragic and epic, with a high-contrast lighting scheme featuring deep shadows and cold blue highlights. Surface reflections of the distant lights shimmer in the puddles. No people, only the desolate environment. Hyper-realistic, 8k resolution, volumetric lighting, dramatic atmosphere, Unreal Engine 5 render style.",
+  "model": "stable_diffusion",
+  "sd_model": "meinamix_v12Final.safetensors",
+  "style": "fantasy",
+  "source_image": "scenes/final_dark_alley/concept_1.png"
+}

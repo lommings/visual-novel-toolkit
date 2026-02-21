@@ -1,0 +1,8 @@
+{
+  "id": "busy_commercial_district",
+  "prompt": "A cinematic high-angle view of a bustling modern city street corner. In the center, a sun-drenched outdoor cafe with white minimalist decor and glass walls glows under intense midday sun. Surroundings feature sleek skyscrapers and polished marble pavements. The scene is defined by extreme high-contrast lighting: the cafe is brilliantly lit and inviting, while the immediate foreground and side alleys are engulfed in deep, cold, pitch-black shadows. No people present. Details include reflections of the city on glass, empty espresso cups on tables, and a dark, ominous architectural silhouette framing the view. Photorealistic, architectural photography, 8k, sharp focus, noir atmosphere, tension between light and dark.",
+  "model": "stable_diffusion",
+  "sd_model": "meinamix_v12Final.safetensors",
+  "style": "anime",
+  "source_image": "scenes/busy_commercial_district/concept_1.png"
+}

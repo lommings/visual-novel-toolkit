@@ -1,0 +1,8 @@
+{
+  "id": "aiba_apartment_interior",
+  "prompt": "Cinematic interior photography of a cluttered but cozy studio apartment at night. In the foreground, a wooden desk is piled high with thick medical textbooks, anatomical charts, and scattered pens under the harsh, warm glow of a brass desk lamp. In the background, a small kitchenette is dimly lit, with soft white steam rising from a simmering pot on the stove. A fabric sofa with a messy, thick-knit blanket sits in the shadows. The atmosphere is a heavy mix of domestic warmth and creeping anxiety, created by the contrast between the golden lamplight and long, deep, distorted shadows stretching across the floor. A hint of cold blue moonlight enters from a window slit. Highly detailed textures, 8k resolution, photorealistic, moody and evocative lighting.明亮溫暖",
+  "model": "stable_diffusion",
+  "sd_model": "counterfeitV30_v30.safetensors",
+  "style": "semi_realistic",
+  "source_image": "scenes/aiba_apartment_interior/concept_1.png"
+}
